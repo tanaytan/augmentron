@@ -10,7 +10,7 @@ A static research project site for *Augmentron: Scalable Multi-View Visual Augme
 - `notebook.html`: research notebook layout.
 - `presentation-style.html`: adapts the supplied presentation typography, colors, and camera layouts.
 - `contact-sheet.html`: earlier camera-led sketch, retained for reference.
-- `index.html`: the paper-page direction as a provisional default.
+- `index.html`: the presentation-style direction as the working default.
 
 All directions use the same experimental data and interactions. They contain no dependencies or build step.
 
@@ -18,11 +18,13 @@ Run `python3 -m http.server 4173` in this directory. Open `http://127.0.0.1:4173
 
 ## GitHub Pages
 
-After choosing a direction, copy its HTML file to `index.html`. Place this directory's contents in a GitHub repository. Configure Pages to deploy from the root of the main branch. The `.nojekyll` file makes the site buildless. All asset URLs are relative, so the site also works under a repository subpath.
+Repository: https://github.com/tanaytan/augmentron
+
+The working default is the presentation-style direction. To switch designs, copy the chosen HTML file to `index.html`. Pages deploys from the root of the main branch. The `.nojekyll` file makes the site buildless. All asset URLs are relative, so the site also works under a repository subpath.
 
 The design-review page and unused direction files can be left out of the published site. Keep `styles.css`, `directions.css`, `site.js`, `.nojekyll`, `index.html`, and `assets/`.
 
-No GitHub repository has been created or published as part of this design-review draft.
+The paper-page and notebook variants remain available alongside the working default.
 
 ## Sources and claim boundaries
 
@@ -39,7 +41,7 @@ The supplied paper is authoritative for the method and final results. The earlie
 
 `assets/results.csv` contains the exact source-table percentages and sample sizes. The dynamic chart reads the same numbers from `site.js`.
 
-`assets/paper/augmentron.pdf` was compiled from the supplied anonymous manuscript. The original files were left unchanged. The local build copy only fixes a package-loading option clash for xcolor; manuscript content is unchanged.
+`assets/paper/augmentron.pdf` was compiled from the supplied manuscript. The original files were left unchanged. The local build copy fixes a package-loading option clash for xcolor and selects final, non-anonymous workshop formatting. The listed authors are displayed, review line numbers are removed, and the submission-only distribution notice is replaced by the workshop footer. The paper text and experimental results are unchanged.
 
 The presentation video was resized and compressed for browser playback. The underlying augmentation and policy code is not included or represented as released. No arXiv or code-release links are invented.
 
