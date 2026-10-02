@@ -1,0 +1,25 @@
+training_steps,recipe,effective_volume,task,original_setup_success_pct,distractor_success_pct,steel_surface_success_pct,rollouts_per_condition
+30k,Real only,1,Cup on saucer,86,16,78,50
+30k,Real only,1,Fold a towel,68,26,54,50
+30k,Real only,1,Flower in vase,46,12,20,50
+30k,Real only,1,Pooled,66.7,18,50.7,150
+30k,Augmentron 50/50,1,Cup on saucer,72,52,80,50
+30k,Augmentron 50/50,1,Fold a towel,88,52,94,50
+30k,Augmentron 50/50,1,Flower in vase,70,32,28,50
+30k,Augmentron 50/50,1,Pooled,76.7,45.3,67.3,150
+30k,Augmentron 33/67 (exploratory),3,Cup on saucer,80,76,62,50
+30k,Augmentron 33/67 (exploratory),3,Fold a towel,80,64,88,50
+30k,Augmentron 33/67 (exploratory),3,Flower in vase,44,12,26,50
+30k,Augmentron 33/67 (exploratory),3,Pooled,68,50.7,58.7,150
+45k,Augmentron 33/67,3,Cup on saucer,82,74,70,50
+45k,Augmentron 33/67,3,Fold a towel,72,80,84,50
+45k,Augmentron 33/67,3,Flower in vase,60,44,28,50
+45k,Augmentron 33/67,3,Pooled,71.3,66,60.7,150
+45k,RoboEngine,2,Cup on saucer,70,60,78,50
+45k,RoboEngine,2,Fold a towel,82,86,40,50
+45k,RoboEngine,2,Flower in vase,20,14,6,50
+45k,RoboEngine,2,Pooled,57.3,53.3,41.3,150
+45k,Masked Noise,2,Cup on saucer,86,62,62,50
+45k,Masked Noise,2,Fold a towel,94,88,76,50
+45k,Masked Noise,2,Flower in vase,26,6,6,50
+45k,Masked Noise,2,Pooled,68.7,52,48,150
