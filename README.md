@@ -1,50 +1,62 @@
 # Augmentron project website
 
-A static research project site for *Augmentron: Scalable Multi-View Visual Augmentation for Robot Learning*, by Tanay Tandon and Aseem Doriwala.
+A static paper website for **Augmentron: Scalable Multi-View Visual Augmentation for Robot Learning**.
 
-## Review the content and designs
+Tanay Tandon¹²*, Aseem Doriwala¹*, Jade Choghari¹, Catherine Weaver¹, Pragna Mannam¹
 
-- `content.md`: proposed project-page copy.
-- `directions.html`: compare three working directions.
-- `paper.html`: conventional academic project page.
-- `notebook.html`: research notebook layout.
-- `presentation-style.html`: adapts the supplied presentation typography, colors, and camera layouts.
-- `contact-sheet.html`: earlier camera-led sketch, retained for reference.
-- `index.html`: the presentation-style direction as the working default.
+*Equal contribution. ¹ Scale AI. ² University of Pennsylvania.
 
-All directions use the same experimental data and interactions. They contain no dependencies or build step.
+[Live website](https://tanaytan.github.io/augmentron/)
 
-Run `python3 -m http.server 4173` in this directory. Open `http://127.0.0.1:4173/directions.html`.
+## Edit and preview
+
+The site has no dependencies or build step.
+
+```sh
+python3 -m http.server 4173 --bind 127.0.0.1
+```
+
+Open `http://127.0.0.1:4173/`.
+
+- `index.html`: narrative, author list, links, citation, and semantic layout.
+- `styles.css`: presentation colors, typography, layouts, responsive rules, and interaction transitions.
+- `site.js`: shared video clock, camera focus, montage selection, mask overlays, room net, and result controls.
+- `content.md`: a readable copy of the public narrative.
+- `assets/results.csv`: all 72 source-table percentages and sample sizes.
+- `assets/paper/augmentron.pdf`: public-format manuscript with the five-author list.
+
+`presentation-style.html` mirrors the main page. Older design-review URLs redirect to it. Their earlier layouts remain in Git history. When changing the page, update the mirror too.
 
 ## GitHub Pages
 
-Repository: https://github.com/tanaytan/augmentron
+Pages serves the root of the `main` branch at https://tanaytan.github.io/augmentron/.
+The `.nojekyll` file keeps it buildless. Asset URLs are relative and work under the repository subpath.
 
-The working default is the presentation-style direction. To switch designs, copy the chosen HTML file to `index.html`. Pages deploys from the root of the main branch. The `.nojekyll` file makes the site buildless. All asset URLs are relative, so the site also works under a repository subpath.
+## Story and design
 
-The design-review page and unused direction files can be left out of the published site. Keep `styles.css`, `directions.css`, `site.js`, `.nojekyll`, `index.html`, and `assets/`.
+The page follows Tanay’s spoken presentation: limited collection environments → show the augmented outputs → protect the task → a room is six planes → reuse those assets → does the robot improve? Its words and questions are edited from the actual presentation audio, rather than inferred from slide text.
 
-The paper-page and notebook variants remain available alongside the working default.
+The Scale presentation supplies cream, forest green, muted purple, Arial at weight 400, large questions, and camera framing. A live scroll-and-click study of hone.com informed the varied chapter compositions, generous media stage, coordinated selected states, purposeful transitions, and accessible optional depth. No Hone assets are included.
 
-## Sources and claim boundaries
+The scene inspector uses one four-view mosaic video, so camera views always share a clock. Paired environment/surface examples preserve playback time. Wall selections open at their thumbnail’s 2-second moment. These files are **presentation montages**, with changing generated appearances inside a trajectory. They illustrate the outputs; they do not establish the final method’s single-scene temporal consistency by themselves. Gallery examples come from different source demonstrations.
 
-The supplied paper is authoritative for the method and final results. The earlier intern presentation supplies augmentation footage and illustrative policy rollouts. The page explicitly labels the presentation as an earlier version.
+The mask inspector uses actual presentation masks aligned with the supplied towel still. The object mask has a few extra regions at the edge, which remain visible. The foldable room diagram is explicitly a schematic of the six-face representation. It does not reconstruct an actual room or run generation.
 
-- The matched 30k experiment compares real-only with 50/50 at 1× volume and the same training schedule.
-- The 45k experiment compares complete recipes at unequal volume: Augmentron 3×, RoboEngine 2×, and Masked Noise 2×.
-- The exploratory 30k 33/67 checkpoint follows a 45k schedule.
-- The pipeline augments four cameras; policies consume three.
-- Runtime is wall-clock time on one eight-H100 node, not GPU-hours.
-- Cosmos four-view timing is extrapolated. Its measured timing is for one view.
-- Cup-on-saucer ID performance decreases in the matched comparison despite a pooled improvement.
-- One training seed is evaluated. Rollouts do not measure seed variation.
+Results change within stable chart rows. Conditions, task selections, illustrative setup photos, percentages, interpretation, and training-mixture labels update together. The surface condition uses the supplied cup-task surface still, clearly labeled as an example even when another task is selected. A motion control and the system reduced-motion preference disable transitions and automatic scene playback. User-requested media playback remains available.
 
-`assets/results.csv` contains the exact source-table percentages and sample sizes. The dynamic chart reads the same numbers from `site.js`.
+## Scientific boundaries
 
-`assets/paper/augmentron.pdf` was compiled from the supplied manuscript. The original files were left unchanged. The local build copy fixes a package-loading option clash for xcolor and selects final, non-anonymous workshop formatting. The listed authors are displayed, review line numbers are removed, and the submission-only distribution notice is replaced by the workshop footer. The paper text and experimental results are unchanged.
+The supplied paper is authoritative for the final method and numerical evidence. The earlier intern talk supplies the voice and illustrative augmentation/rollout footage.
 
-The presentation video was resized and compressed for browser playback. The underlying augmentation and policy code is not included or represented as released. No arXiv or code-release links are invented.
+- The matched 30k experiment compares real only with 50/50 at the same 1× volume and schedule. Every source episode is represented once.
+- The 45k experiment compares complete recipes at unequal volume: Augmentron 3×, RoboEngine 2×, Masked Noise 2×.
+- The exploratory 30k 33/67 checkpoint follows a 45k decay schedule. It does not establish a scaling trend.
+- The pipeline processes four cameras. Evaluated policies consume high fixed and both wrists.
+- Runtime is wall-clock time on one eight-H100 node, rather than GPU-hours. The Cosmos four-view number is extrapolated; the measured run uses one view.
+- Cup-on-saucer success in the original setup falls in the matched comparison despite pooled improvement.
+- Each task/recipe uses one training seed. Rollouts do not measure variation across seeds.
+- The illustrative policy videos are separate trials with manually reset starts.
 
-## Later updates
+The original paper files were left unchanged. A local build copy fixes an xcolor option clash, selects final workshop formatting, and updates authors, affiliations, equal contribution, and PDF metadata. Scientific text and results remain unchanged. The presentation video is compressed for browser playback.
 
-Replace the PDF link with an arXiv link when the paper is available. Update the citation with the official archival metadata. Add an implementation-code link when an actual public repository is available.
+This repository contains the website, rather than the augmentation/policy implementation. No arXiv link or implementation release is claimed. When an archival paper URL exists, add it to the resources and update BibTeX metadata.
