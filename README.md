@@ -34,7 +34,7 @@ The `.nojekyll` file keeps it buildless. Asset URLs are relative and work under 
 
 ## Story and design
 
-The page follows Tanay’s spoken presentation: limited collection environments → show the augmented outputs → protect the task → a room is six planes → reuse those assets → does the robot improve? Its words and questions are edited from the actual presentation audio, rather than inferred from slide text.
+The page follows Tanay’s spoken presentation: limited collection environments → explore edited demonstrations → explain why the action labels remain valid → protect the task → reuse a six-plane room across cameras → measure processing time → test the trained robot Its words and questions are edited from the actual presentation audio, rather than inferred from slide text.
 
 The Scale presentation supplies cream, forest green, muted purple, Arial at weight 400, large questions, and camera framing. A live scroll-and-click study of hone.com informed the varied chapter compositions, generous media stage, coordinated selected states, purposeful transitions, and accessible optional depth. No Hone assets are included.
 
@@ -44,7 +44,7 @@ When adding a gallery clip, inspect all four cameras at several points in the tr
 
 The mask inspector uses actual presentation masks aligned with the supplied towel still. The object mask has a few extra regions at the edge, which remain visible. The foldable room diagram is explicitly a schematic of the six-face representation. It does not reconstruct an actual room or run generation.
 
-Results change within stable chart rows. Conditions, task selections, illustrative setup photos, percentages, interpretation, and training-mixture labels update together. The surface condition uses the supplied cup-task surface still, clearly labeled as an example even when another task is selected. A motion control and the system reduced-motion preference disable transitions and automatic scene playback. User-requested media playback remains available.
+The default evidence view shows the same-volume distractor comparison: 18.0% to 45.3% pooled success. Results change within stable chart rows, with exact percentages shown immediately. Training comparison, test setting, and task controls are separately labeled; the task selector sits beside the chart. Negative differences remain visible. Larger-recipe volumes and baseline definitions appear alongside that comparison. The full table has a keyboard-focusable horizontal scroll region on narrow screens. Conditions, task selections, illustrative setup photos, percentages, interpretation, and training-mixture labels update together. The surface condition uses the supplied cup-task surface still, clearly labeled as an example even when another task is selected. A motion control and the system reduced-motion preference disable transitions and automatic scene playback. Gallery selections reset to all four cameras, seek to the pictured 2-second moment, and return focus to the play control. The talk panel has a visible close button; closing pauses playback and restores focus to its opener. User-requested media playback remains available.
 
 ## Scientific boundaries
 
