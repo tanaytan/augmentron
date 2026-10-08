@@ -317,24 +317,6 @@ $('#all-results-body').innerHTML = recipes.map(r => [...Object.values(taskNames)
 ).join('')).join('');
 renderResults();
 
-function setPresentationOpen(open) {
-  const panel = $('#presentation-panel');
-  panel.hidden = !open;
-  $('#presentation-toggle').setAttribute('aria-expanded',String(open));
-  $('#presentation-toggle').firstChild.textContent = open?'Close my intern talk ':'Watch my intern talk ';
-  $('#presentation-toggle').querySelector('span').textContent = open?'×':'+';
-  if (!open) {
-    panel.querySelector('video').pause();
-    $('#presentation-toggle').focus();
-  }
-  else {
-    $('#presentation-close').focus({preventScroll:true});
-    panel.scrollIntoView({behavior:animationsReduced?'instant':'smooth',block:'start'});
-  }
-}
-$('#presentation-toggle').querySelector('span').textContent = '+';
-$('#presentation-toggle').addEventListener('click', () => setPresentationOpen($('#presentation-panel').hidden));
-$('#presentation-close').addEventListener('click', () => setPresentationOpen(false));
 $('#copy-citation').addEventListener('click',async () => {
   const status = $('#citation-status');
   try {

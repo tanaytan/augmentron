@@ -131,6 +131,6 @@ The next question I’d like to ask: what happens when this goes into pretrainin
 
 The experiments here are fine-tuning runs. Larger-scale training remains future work.
 
-## Paper and talk
+## Paper
 
-The downloadable paper contains the final method and complete results. My intern talk tells the story of an earlier version. This page uses the paper’s final method and experimental results.
+The downloadable paper contains the final method and complete results.
