@@ -1,6 +1,6 @@
 # Augmentron project website
 
-A static paper website for **Augmentron: Scalable Multi-View Visual Augmentation for Robot Learning**.
+Research article for **Augmentron: Scalable Multi-View Visual Augmentation for Robot Learning**, accepted to the 8th Robot Learning Workshop at NeurIPS 2026.
 
 Tanay Tandon¹²*, Aseem Doriwala¹*, Jade Choghari¹, Catherine Weaver¹, Pragna Mannam¹
 
@@ -10,7 +10,7 @@ Tanay Tandon¹²*, Aseem Doriwala¹*, Jade Choghari¹, Catherine Weaver¹, Pragn
 
 ## Edit and preview
 
-The site has no dependencies or build step.
+The site has no dependencies or build step. Run this command from the repository root:
 
 ```sh
 python3 -m http.server 4173 --bind 127.0.0.1
@@ -18,47 +18,50 @@ python3 -m http.server 4173 --bind 127.0.0.1
 
 Open `http://127.0.0.1:4173/`.
 
-- `index.html`: narrative, author list, links, citation, and semantic layout.
-- `styles.css`: presentation colors, typography, layouts, responsive rules, and interaction transitions.
-- `site.js`: shared video clock, camera focus, montage selection, mask overlays, room net, and result controls.
-- `content.md`: a readable copy of the public narrative.
-- `assets/results.csv`: all 72 source-table percentages and sample sizes.
-- `assets/paper/augmentron.pdf`: public-format manuscript with the five-author list.
+- `index.html`: article, figures, author list, paper link, and citation.
+- `styles.css`: typography, colors, layouts, responsive rules, and motion.
+- `site.js`: figure replays, mask visibility, trial playback, complete-results table, citation copying, reading progress, and reduced motion.
+- `content.md`: readable copy of the current article, captions, and numerical tables.
+- `assets/results.csv`: all 72 task-level and pooled success percentages, with rollout counts.
+- `assets/images/expansion/`: the 49 prototype stills used in the expanding wall.
+- `assets/expansion.json`: still identifiers and wall positions.
+- `assets/paper/augmentron.pdf`: manuscript with the five-author list.
 
-`presentation-style.html` mirrors the main page. Older design-review URLs redirect to it. Their earlier layouts remain in Git history. When changing the page, update the mirror too.
+`presentation-style.html` mirrors the main page. Update it when editing `index.html`. Older review URLs redirect to the main article. Earlier scene-explorer designs remain in Git history.
 
 ## GitHub Pages
 
-Pages serves the root of the `main` branch at https://tanaytan.github.io/augmentron/.
-The `.nojekyll` file keeps it buildless. Asset URLs are relative and work under the repository subpath.
+Pages serves the root of the `main` branch at [tanaytan.github.io/augmentron](https://tanaytan.github.io/augmentron/). The `.nojekyll` file keeps the site buildless. Relative asset URLs work under the repository subpath.
 
-## Story and design
+## Article and controls
 
-The page follows Tanay’s spoken presentation: limited collection environments → explore edited demonstrations → explain why the action labels remain valid → protect the task → reuse a six-plane room across cameras → measure processing time → test the trained robot Its words and questions are edited from the actual presentation audio, rather than inferred from slide text.
+The article starts with the collection problem and the idea of reusable scenes. It then shows prototype edits, explains protected pixels and scene rendering, measures processing time, and evaluates the trained policies. A static three-condition chart presents the matched comparison without requiring selections. Task-level results, larger recipes, and comparison limits sit in one disclosure.
 
-The Scale presentation supplies cream, forest green, muted purple, Arial at weight 400, large questions, and camera framing. A live scroll-and-click study of hone.com informed the varied chapter compositions, generous media stage, coordinated selected states, purposeful transitions, and accessible optional depth. No Hone assets are included.
+- **Replay expansion** reveals 1, 9, 25, and 49 stills. They show room and table edits across different cup, towel, and vase recordings. Each is a high fixed camera view.
+- **Hide masks / Show masks** toggles the protected robot and towel overlays on a verified original frame.
+- **Replay unfolding** shows a schematic six-face cubemap unfolding. The diagram explains a reusable representation; it does not generate or reconstruct a room.
+- **The full pipeline**, **Timing scope and Cosmos-Transfer1**, and **Task results and larger recipes** reveal optional detail. The complete table supports horizontal scrolling on small screens, and its CSV is downloadable.
+- Two illustrative trial videos have native playback controls and **Replay both trials**. They start automatically when visible, pause when out of view, and use different manually reset starts.
+- **Copy BibTeX** copies the displayed citation. **Reduce motion** and the system motion preference disable automatic figure transitions and trial playback. The final still wall and unfolded cubemap remain visible, and explicit video playback remains available.
 
-The scene inspector uses one four-view mosaic video, so camera views always share a clock. Paired environment/surface examples preserve playback time. Wall selections open at their thumbnail’s 2-second moment. These files are **presentation montages**, with changing generated appearances inside a trajectory. They illustrate the outputs; they do not establish the final method’s single-scene temporal consistency by themselves. Gallery examples come from different source demonstrations.
+The header links to Method, Results, and the paper. A reading-progress line and current-section indicator support navigation.
 
-When adding a gallery clip, inspect all four cameras at several points in the trajectory to check that the task objects remain visible. The wooden-workshop vase montage is excluded because its wrist-view mask loses the vase at some times. The vase controls use the matching 264/265 pair, which is cleaner than 676/677. The public caption acknowledges the earlier demos' remaining masking artifacts.
+## Media and scientific limits
 
-The mask inspector uses actual presentation masks aligned with the supplied towel still. The object mask has a few extra regions at the edge, which remain visible. The foldable room diagram is explicitly a schematic of the six-face representation. It does not reconstruct an actual room or run generation.
+The paper supplies the final method and numerical evidence. Prototype stills and example trials are labelled separately from that evidence.
 
-The default evidence view shows the same-volume distractor comparison: 18.0% to 45.3% pooled success. Results change within stable chart rows, with exact percentages shown immediately. Training comparison, test setting, and task controls are separately labeled; the task selector sits beside the chart. Negative differences remain visible. Larger-recipe volumes and baseline definitions appear alongside that comparison. The full table has a keyboard-focusable horizontal scroll region on narrow screens. Conditions, task selections, illustrative setup photos, percentages, interpretation, and training-mixture labels update together. The surface condition uses the supplied cup-task surface still, clearly labeled as an example even when another task is selected. A motion control and the system reduced-motion preference disable transitions and automatic scene playback. Gallery selections reset to all four cameras, seek to the pictured 2-second moment, and return focus to the play control. User-requested media playback remains available.
+The mask figure uses an original frame extracted from the paper and its matching masks. The task-object mask includes a few extra edge regions, which remain visible. The expanding wall contains 49 examples from different recordings. It illustrates appearance changes and does not show one source recording becoming 49 matched variants or establish temporal consistency from stills.
 
-## Scientific boundaries
+The final method generates a static working-area image and a six-image cubemap once. Fixed-camera backgrounds are rendered once and reused; wrist-camera views render from changing recorded poses. Surface edits use a calibrated table plane. The pipeline needs camera calibration, robot geometry, and usable masks.
 
-The supplied paper is authoritative for the final method and numerical evidence. The earlier intern talk supplies the voice and illustrative augmentation/rollout footage.
+- The matched 30k experiment compares real-only training with Augmentron 50/50 at the same 1× data volume and schedule. Every source episode is represented once.
+- Pooled success is 66.7% → 76.7% in the original setup, 18.0% → 45.3% with distractors, and 50.7% → 67.3% on steel. Original-setup cup placement falls from 86% to 72% despite the pooled improvement.
+- Each task and recipe uses one trained checkpoint and one training seed. Each task/condition cell has 50 physical rollouts; pooled results have 150. These rollouts do not measure variation across training seeds.
+- The 45k comparison evaluates complete recipes at unequal volume: Augmentron uses 3×, while RoboEngine and Masked Noise use 2×. It does not isolate individual pipeline components.
+- The exploratory 30k Augmentron 33/67 checkpoint comes from a run scheduled for 45k updates. Its data volume and decay schedule differ from 50/50; it does not establish a scaling trend.
+- Augmentron processes two fixed and two wrist streams. The evaluated policies observe the high fixed view and both wrists.
+- Runtime is measured wall-clock time on one eight-H100 node. The benchmark covers 104 cup demonstrations and 30 minutes of source video across four streams. Augmentron takes 0.47 hours and RoboEngine 8.14 hours. Cosmos-Transfer1's 10.31-hour single-view run is measured; its 23.79-hour four-view figure is extrapolated.
+- The illustrative trial videos are separate trials from an earlier prototype evaluation. Progress scores range from 0 to 3; only full completion, a score of 3, counts as success.
+- The experiments are fine-tuning runs on three tasks and three visual conditions. Pretraining and midtraining remain future work.
 
-- The matched 30k experiment compares real only with 50/50 at the same 1× volume and schedule. Every source episode is represented once.
-- The 45k experiment compares complete recipes at unequal volume: Augmentron 3×, RoboEngine 2×, Masked Noise 2×.
-- The exploratory 30k 33/67 checkpoint follows a 45k decay schedule. It does not establish a scaling trend.
-- The pipeline processes four cameras. Evaluated policies consume high fixed and both wrists.
-- Runtime is wall-clock time on one eight-H100 node, rather than GPU-hours. The Cosmos four-view number is extrapolated; the measured run uses one view.
-- Cup-on-saucer success in the original setup falls in the matched comparison despite pooled improvement.
-- Each task/recipe uses one training seed. Rollouts do not measure variation across seeds.
-- The illustrative policy videos are separate trials with manually reset starts.
-
-The original paper files were left unchanged. A local build copy fixes an xcolor option clash, selects final workshop formatting, and updates authors, affiliations, equal contribution, and PDF metadata. Scientific text and results remain unchanged.
-
-This repository contains the website, rather than the augmentation/policy implementation. No arXiv link or implementation release is claimed. When an archival paper URL exists, add it to the resources and update BibTeX metadata.
+This repository contains the research website. Augmentation and policy implementation code is not released here. When an archival paper URL becomes available, add it to the resources and update the citation metadata.
