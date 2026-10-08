@@ -23,3 +23,4 @@
 @media(max-width:700px){.condition-context{grid-template-columns:140px 1fr;gap:15px;margin-bottom:26px}.condition-context figcaption{font-size:10px;line-height:1.3}.condition-context h4{font-size:21px}.condition-context p{font-size:12px;line-height:1.35}.condition-context .small-note{font-size:10px}}
 @media(max-width:700px){html{scroll-padding-top:90px}.site-header nav a:nth-child(1){display:flex}.site-header nav{gap:13px}.site-header nav a{min-height:44px}.room-stage.unfolded .room-face{font-size:22px}}
 @media(max-width:360px){.site-header nav{gap:9px}.site-header nav a{font-size:10px}.room-stage.unfolded .room-cube{transform:scale(.44);left:-29px}}
+@media(max-width:360px){.resource-title h2{font-size:52px}}
