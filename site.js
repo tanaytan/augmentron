@@ -21,7 +21,7 @@ const taskNames = { cup:'Cup on saucer', towel:'Fold a towel', vase:'Flower in v
 const pairs = {
   cup: { env:'cup-env-350', texture:'cup-texture-351' },
   towel: { env:'towel-env-578', texture:'towel-texture-579' },
-  vase: { env:'vase-env-676', texture:'vase-texture-677' }
+  vase: { env:'vase-env-264', texture:'vase-texture-265' }
 };
 const gallery = [
   ['vase-texture-677','vase','texture','Pink surface'],
@@ -32,7 +32,7 @@ const gallery = [
   ['more-towel-env-1468','towel','env','Bright workshop'],
   ['more-towel-texture-881','towel','texture','Teal surface'],
   ['cup-texture-351','cup','texture','Dark marble surface'],
-  ['more-vase-env-424','vase','env','Wooden workshop'],
+  ['vase-env-264','vase','env','Robot workshop'],
   ['vase-texture-265','vase','texture','Metallic surface'],
   ['more-cup-texture-1003','cup','texture','Cork surface'],
   ['towel-env-578','towel','env','Parts warehouse']

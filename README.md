@@ -40,6 +40,8 @@ The Scale presentation supplies cream, forest green, muted purple, Arial at weig
 
 The scene inspector uses one four-view mosaic video, so camera views always share a clock. Paired environment/surface examples preserve playback time. Wall selections open at their thumbnail’s 2-second moment. These files are **presentation montages**, with changing generated appearances inside a trajectory. They illustrate the outputs; they do not establish the final method’s single-scene temporal consistency by themselves. Gallery examples come from different source demonstrations.
 
+When adding a gallery clip, inspect all four cameras at several points in the trajectory to check that the task objects remain visible. The wooden-workshop vase montage is excluded because its wrist-view mask loses the vase at some times. The vase controls use the matching 264/265 pair, which is cleaner than 676/677. The public caption acknowledges the earlier demos' remaining masking artifacts.
+
 The mask inspector uses actual presentation masks aligned with the supplied towel still. The object mask has a few extra regions at the edge, which remain visible. The foldable room diagram is explicitly a schematic of the six-face representation. It does not reconstruct an actual room or run generation.
 
 Results change within stable chart rows. Conditions, task selections, illustrative setup photos, percentages, interpretation, and training-mixture labels update together. The surface condition uses the supplied cup-task surface still, clearly labeled as an example even when another task is selected. A motion control and the system reduced-motion preference disable transitions and automatic scene playback. User-requested media playback remains available.
