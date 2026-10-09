@@ -16,25 +16,17 @@ Augmentron starts with a demonstration we already have and gives it a different 
 
 - **Generalization · 18.0% → 45.3%** Success with distractors.<br>Real only → Augmentron.
 
-- **Efficiency · 30 min → 28 min** Video → processing time.<br>Four views, eight H100s.
+- **Efficiency · 17× faster** Than RoboEngine.<br>Same data and hardware.
 
 - **Scalability · Generate once.** One scene per recording.<br>Shared across cameras.
 
 ## Augmenting real demonstrations.
 
-The wall expands to show room and table edits across our recordings. Look at the robot: it follows the original demonstration, folding the towel, placing the cup, or inserting the flower. Each tile brings together four synchronized views, with the high and low fixed cameras above and both wrists below.
-
-**Four views per recording**
-
 *Replay expansion; Play / Pause; Expansion timeline.*
-
-*Plays here as you scroll. Drag the timeline to rewind.*
 
 **Multi-view consistent · 1×**
 
 GPU-hours / video-hour
-
-*These clips come from the early prototype, which cycles through room and table appearances. In the final method, each generated scene stays fixed throughout a recording. The banner preserves the prototype presentation’s claim of 1 GPU-hour per video-hour; the benchmark below reports the final paper’s measured wall-clock time.*
 
 ## How does this work?
 
@@ -86,9 +78,11 @@ Robot-mesh projections and SAM 3 segmentation identify the protected foreground.
 
 ## Efficiency.
 
-**Thirty minutes of video takes 28 minutes to augment.**
+**The expensive part happens once per recording.**
 
-Once we have the scene, a longer recording adds rendering and compositing work. It does not require another round of generation for every frame. The same assets serve the fixed cameras and both moving wrists.
+An image model can edit each frame, or a video model can edit a clip at a time. Both keep generative inference tied to how much footage we want to augment. Across four cameras, that cost adds up quickly.
+
+Augmentron generates the room and surface assets once, then renders and composites them throughout the recording. Longer demonstrations add more of that cheaper work, while all four cameras share the same generated appearance.
 
 | Once per recording | For each frame |
 | --- | --- |
@@ -99,7 +93,7 @@ Once we have the scene, a longer recording adds rendering and compositing work. 
 
 Some segmentation work can be shared too. We reuse stable fixed-camera surface masks and estimate some masks by tiling four frames into one image. Wrist-camera objects still need a separate mask for each view and frame.
 
-For the benchmark, we used 104 cup demonstrations totaling 30 minutes, with four camera streams on one node with eight H100s. The complete Augmentron pipeline took 0.47 hours. RoboEngine, a generative augmentation baseline, took 8.14 hours with the same data and hardware.
+For the benchmark, we used 104 cup demonstrations totaling 30 minutes, with four camera streams on one node with eight H100s. The complete Augmentron pipeline took 0.47 hours. RoboEngine, a generative augmentation baseline, took 8.14 hours with the same data and hardware. That makes Augmentron about 17× faster in this benchmark.
 
 | Pipeline | Measured wall-clock time |
 | --- | ---: |
@@ -195,6 +189,8 @@ The real-only policy makes partial progress. The policy trained with augmented d
 *Two separate trials from the earlier prototype evaluation. A score of 1 marks partial progress; 3 marks completion and counts as success.*
 
 ## There’s still a lot of work to do here.
+
+The biggest next step for augmentation quality is better segmentation. A wrist camera may see a gripper and a flower stem, with the petals out of view. To edit the flower consistently, we need to keep track of which pixels belong to it. I’d start by fine-tuning a segmentation model on these robot views. Better masks would improve the current edits and make changes to the task objects themselves more feasible.
 
 Three tasks and three visual conditions give us a useful first test. With one training seed per task and recipe, we still need to learn how much these results vary across training runs. The pipeline also depends on camera calibration, robot geometry, and usable masks. Its edits broaden the visual settings around a behavior we already recorded.
 

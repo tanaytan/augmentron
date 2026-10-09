@@ -52,7 +52,6 @@ function renderExpansion() {
   const playing=!expansionVideo.paused||expansionState.pending;
   $('#expansion-play').textContent=playing?'Pause':'Play';
   $('#expansion-play').setAttribute('aria-label',(playing?'Pause':'Play')+' expansion');
-  $('#expansion-hint').textContent=motionReduced&&!expansionState.manual?'Motion reduced. Press Play to watch, or scrub the timeline.':expansionState.userPaused?'Paused. Drag the timeline or press Play.':expansionState.pending?'Loading the video. Press Pause to stop.':playing?'Loops while in view. Drag the timeline to rewind.':'Plays here as you scroll. Drag the timeline to rewind.';
 }
 function stopExpansionClock() {
   cancelAnimationFrame(expansionState.frame);
@@ -86,7 +85,6 @@ async function syncExpansion() {
   } catch {
     if(request===expansionState.request && wantsPlayback(expansionState)) {
       expansionState.userPaused=true;
-      $('#expansion-hint').textContent='Press Play to watch the expansion.';
     }
   } finally {
     if(request===expansionState.request) {expansionState.pending=false;renderExpansion();}

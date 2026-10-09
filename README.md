@@ -40,9 +40,9 @@ Pages serves the root of the `main` branch at [tanaytan.github.io/augmentron](ht
 
 ## Article and controls
 
-The article starts with the collection problem and synthetic data augmentation. Three labelled takeaways introduce generalization, efficiency, and scalability. It then shows four-camera prototype edits, explains which pixels are protected and how room and surface edits work, shows final-paper examples, explains scene reuse and measured processing time, and evaluates the trained policies. A static three-condition chart presents the matched comparison without requiring selections. Task-level results, larger recipes, and comparison limits sit in one disclosure.
+The article starts with the collection problem and synthetic data augmentation. Three labelled takeaways introduce generalization, the measured 17× runtime advantage over RoboEngine, and scene reuse. It then shows four-camera prototype edits, explains which pixels are protected and how room and surface edits work, shows final-paper examples, explains scene reuse and measured processing time, and evaluates the trained policies. A static three-condition chart presents the matched comparison without requiring selections. Task-level results, larger recipes, and comparison limits sit in one disclosure.
 
-- The opening wall plays a pre-rendered video of room and table edits across different cup, towel, and vase recordings. Each tile retains all four synchronized source views. It grows through 1, 9, 25, and 49 moving examples, then reveals the original prototype presentation’s **Multi-view consistent / 1× GPU-hours / video-hour** banner, preserving its layout and styling. The caption attributes that claim to the prototype and separates it from the final paper’s measured wall-clock benchmark. **Replay expansion**, **Play / Pause**, and the **Expansion timeline** let readers restart, pause, and scrub it.
+- The opening wall plays a pre-rendered video of room and table edits across different cup, towel, and vase recordings. Each tile retains all four synchronized source views. It grows through 1, 9, 25, and 49 moving examples, then reveals the original prototype presentation’s **Multi-view consistent / 1× GPU-hours / video-hour** banner, preserving its layout and styling. **Replay expansion**, **Play / Pause**, and the **Expansion timeline** let readers restart, pause, and scrub it.
 - **Hide masks / Show masks** toggles the protected robot and towel overlays on a verified original frame.
 - **Replay unfolding**, **Play / Pause**, and the **Unfolding timeline** control a schematic six-face cubemap. It unfolds and folds back into a room. The diagram explains a reusable representation; it does not generate or reconstruct a room.
 - **The full pipeline**, **Timing scope and Cosmos-Transfer1**, and **Task results and larger recipes** reveal optional detail. The complete table supports horizontal scrolling on small screens, and its CSV is downloadable.
@@ -74,3 +74,7 @@ The final method generates a static working-area image and a six-image cubemap o
 - The experiments are fine-tuning runs on three tasks and three visual conditions. Pretraining and midtraining remain future work.
 
 This repository contains the research website. Augmentation and policy implementation code is not released here. When an archival paper URL becomes available, add it to the resources and update the citation metadata.
+
+## Asset versions
+
+After editing `styles.css` or `site.js`, run `python3 version_assets.py` before publishing. It gives both asset URLs a content-hash query parameter and synchronizes the HTML mirror, so browsers request the current files instead of reusing an older stylesheet or script.
