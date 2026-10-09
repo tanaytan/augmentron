@@ -22,7 +22,8 @@ let previousScroll = scrollY;
 const expansion = $('#expansion-stage');
 const expansionVideo = $('#expansion-video');
 const expansionStatic = $('#expansion-static');
-const expansionState = {visible:false,userPaused:false,manual:false,pending:false,request:0,seek:null};
+const expansionEndPopup = $('#expansion-end-popup');
+const expansionState = {visible:false,userPaused:false,manual:false,pending:false,request:0,seek:null,frame:0};
 const room = $('#room-stage');
 const roomState = {visible:false,userPaused:false,manual:false,time:0,playing:false,frame:0,lastStamp:0};
 const clockText = seconds => '0:'+String(Math.floor(seconds)).padStart(2,'0');
@@ -39,8 +40,11 @@ function wantsPlayback(state) {
 function renderExpansion() {
   const t=motionReduced&&!expansionState.manual?12.3:expansionState.seek ?? (expansionVideo.currentTime||0);
   const duration=Number.isFinite(expansionVideo.duration)?expansionVideo.duration:16;
-  const label=t<2.4?'1 augmented video':t<3.9?'1 → 9 augmented videos':t<6.4?'9 augmented videos':t<7.9?'9 → 25 augmented videos':t<10.4?'25 augmented videos':t<11.9?'25 → 49 augmented videos':'49 augmented videos';
-  $('#expansion-status').textContent=label;
+  if(expansionEndPopup) {
+    const visible=t>=12.3;
+    expansionEndPopup.classList.toggle('is-visible',visible);
+    expansionEndPopup.setAttribute('aria-hidden',String(!visible));
+  }
   $('#expansion-progress').max=String(duration);
   $('#expansion-progress').value=String(t);
   $('#expansion-progress').setAttribute('aria-valuetext',t.toFixed(1)+' of '+duration.toFixed(0)+' seconds');
@@ -50,17 +54,35 @@ function renderExpansion() {
   $('#expansion-play').setAttribute('aria-label',(playing?'Pause':'Play')+' expansion');
   $('#expansion-hint').textContent=motionReduced&&!expansionState.manual?'Motion reduced. Press Play to watch, or scrub the timeline.':expansionState.userPaused?'Paused. Drag the timeline or press Play.':expansionState.pending?'Loading the video. Press Pause to stop.':playing?'Loops while in view. Drag the timeline to rewind.':'Plays here as you scroll. Drag the timeline to rewind.';
 }
+function stopExpansionClock() {
+  cancelAnimationFrame(expansionState.frame);
+  expansionState.frame=0;
+}
+function expansionTick() {
+  expansionState.frame=0;
+  renderExpansion();
+  if(!expansionVideo.paused && wantsPlayback(expansionState)) {
+    expansionState.frame=requestAnimationFrame(expansionTick);
+  }
+}
+function startExpansionClock() {
+  if(!expansionState.frame && !expansionVideo.paused && wantsPlayback(expansionState)) {
+    expansionState.frame=requestAnimationFrame(expansionTick);
+  }
+}
 async function syncExpansion() {
   if(!wantsPlayback(expansionState)) {
-    ++expansionState.request;expansionState.pending=false;expansionVideo.pause();renderExpansion();return;
+    ++expansionState.request;expansionState.pending=false;stopExpansionClock();expansionVideo.pause();renderExpansion();return;
   }
-  if(!expansionVideo.paused||expansionState.pending)return;
+  if(!expansionVideo.paused) {startExpansionClock();return;}
+  if(expansionState.pending)return;
   const request=++expansionState.request;
   expansionState.pending=true;renderExpansion();
   try {
     await expansionVideo.play();
     if(request!==expansionState.request)return;
-    if(!wantsPlayback(expansionState))expansionVideo.pause();
+    if(!wantsPlayback(expansionState)) {stopExpansionClock();expansionVideo.pause();}
+    else startExpansionClock();
   } catch {
     if(request===expansionState.request && wantsPlayback(expansionState)) {
       expansionState.userPaused=true;
@@ -80,7 +102,9 @@ function seekExpansion(time) {
   renderExpansion();
 }
 expansionVideo.controls=false;
-['timeupdate','play','pause','durationchange','seeked'].forEach(event=>expansionVideo.addEventListener(event,renderExpansion));
+expansionVideo.addEventListener('play',()=>{renderExpansion();startExpansionClock();});
+expansionVideo.addEventListener('pause',()=>{stopExpansionClock();renderExpansion();});
+['durationchange','seeked','ended'].forEach(event=>expansionVideo.addEventListener(event,renderExpansion));
 expansionVideo.addEventListener('loadedmetadata',()=>{
   if(expansionState.seek!==null) {expansionVideo.currentTime=expansionState.seek;expansionState.seek=null;}
   renderExpansion();

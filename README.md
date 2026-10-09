@@ -24,10 +24,12 @@ Open `http://127.0.0.1:4173/`.
 - `site.js`: figure playback and timelines, mask visibility, trial playback, complete-results table, citation copying, reading progress, and reduced motion.
 - `content.md`: readable copy of the current article, captions, and numerical tables.
 - `assets/results.csv`: all 72 task-level and pooled success percentages, with rollout counts.
-- `assets/videos/expansion.mp4`: the pre-rendered wall of 49 moving prototype examples.
+- `assets/videos/expansion.mp4`: the pre-rendered wall of 49 moving, four-camera prototype recordings.
 - `assets/images/expansion-poster.jpg`: the wall's opening frame.
 - `assets/images/expansion-wall.jpg`: the complete wall shown when motion is reduced.
 - `assets/images/expansion/` and `assets/expansion.json`: supporting source stills, identifiers, and wall positions.
+- `assets/images/method/paper-environment-four-views.png`: a four-camera room-edit example from the paper.
+- `assets/images/method/paper-surface-four-views.png`: a four-camera surface-edit example from the paper.
 - `assets/paper/augmentron.pdf`: manuscript with the five-author list.
 
 `presentation-style.html` mirrors the main page. Update it when editing `index.html`. Older review URLs redirect to the main article. Earlier scene-explorer designs remain in Git history.
@@ -38,16 +40,16 @@ Pages serves the root of the `main` branch at [tanaytan.github.io/augmentron](ht
 
 ## Article and controls
 
-The article starts with the collection problem and the idea of reusable scenes. It then shows prototype edits, explains protected pixels and scene rendering, measures processing time, and evaluates the trained policies. A static three-condition chart presents the matched comparison without requiring selections. Task-level results, larger recipes, and comparison limits sit in one disclosure.
+The article starts with the collection problem and synthetic data augmentation. Three labelled takeaways introduce generalization, efficiency, and scalability. It then shows four-camera prototype edits, explains which pixels are protected and how room and surface edits work, shows final-paper examples, explains scene reuse and measured processing time, and evaluates the trained policies. A static three-condition chart presents the matched comparison without requiring selections. Task-level results, larger recipes, and comparison limits sit in one disclosure.
 
-- The opening wall plays a pre-rendered video of room and table edits across different cup, towel, and vase recordings. It grows through 1, 9, 25, and 49 moving examples. **Replay expansion**, **Play / Pause**, and the **Expansion timeline** let readers restart, pause, and scrub it.
+- The opening wall plays a pre-rendered video of room and table edits across different cup, towel, and vase recordings. Each tile retains all four synchronized source views. It grows through 1, 9, 25, and 49 moving examples, then reveals a callout for the final pipeline’s measured 0.93× processing time / source duration on eight H100s. **Replay expansion**, **Play / Pause**, and the **Expansion timeline** let readers restart, pause, and scrub it.
 - **Hide masks / Show masks** toggles the protected robot and towel overlays on a verified original frame.
 - **Replay unfolding**, **Play / Pause**, and the **Unfolding timeline** control a schematic six-face cubemap. It unfolds and folds back into a room. The diagram explains a reusable representation; it does not generate or reconstruct a room.
 - **The full pipeline**, **Timing scope and Cosmos-Transfer1**, and **Task results and larger recipes** reveal optional detail. The complete table supports horizontal scrolling on small screens, and its CSV is downloadable.
 - Two illustrative trial videos have native playback controls and **Replay both trials**. They start automatically when visible, pause when out of view, and use different manually reset starts.
 - **Copy BibTeX** copies the displayed citation. **Reduce motion** and the system motion preference disable automatic figure transitions and trial playback.
 
-The expansion and cubemap stay at their opening states until readers reach them. They loop while in view and pause out of view. Scrubbing pauses automatic progress; Play resumes it. Reduced motion shows the full static wall and unfolded cubemap, with explicit playback and timeline controls still available.
+The expansion timeline follows the video on every animation frame for continuous progress. The expansion and cubemap stay at their opening states until readers reach them. They loop while in view and pause out of view. Scrubbing pauses automatic progress; Play resumes it. Reduced motion shows the full static wall and unfolded cubemap, with explicit playback and timeline controls still available.
 
 The header links to Method, Results, and the paper. A reading-progress line and current-section indicator support navigation.
 
@@ -55,7 +57,7 @@ The header links to Method, Results, and the paper. A reading-progress line and 
 
 The paper supplies the final method and numerical evidence. Prototype videos and example trials are labelled separately from that evidence.
 
-The mask figure uses an original frame extracted from the paper and its matching masks. The task-object mask includes a few extra edge regions, which remain visible. The expanding wall contains 49 examples from different recordings. Its earlier prototype clips cycle through generated appearances. They illustrate room and table edits; the final method holds each generated scene fixed through a recording. The wall does not show one source recording becoming 49 matched variants.
+The mask figure uses an original frame extracted from the paper and its matching masks. The task-object mask includes a few extra edge regions, which remain visible. The expanding wall contains 49 examples from different recordings, each shown with two fixed and two wrist cameras. Its earlier prototype clips cycle through generated appearances. They illustrate room and table edits; the final method holds each generated scene fixed through a recording. The wall does not show one source recording becoming 49 matched variants.
 
 The final method generates a static working-area image and a six-image cubemap once. Fixed-camera backgrounds are rendered once and reused; wrist-camera views render from changing recorded poses. Surface edits use a calibrated table plane. The pipeline needs camera calibration, robot geometry, and usable masks.
 

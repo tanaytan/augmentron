@@ -10,55 +10,92 @@ Accepted to the 8th Robot Learning Workshop: *Is Physical AI Going Zero-Shot?* a
 
 ## We can only collect robot data in so many rooms.
 
-Augmentron asks: can synthetic data help robots generalize?
+Can synthetic data augmentation help robots generalize?
 
-We want our robots to work in everybody’s homes. Augmentron changes the room or table in an existing demonstration, like folding a towel. It preserves the recorded motion and task objects. We generate the scene once and reuse it across the camera views.
+We take a recorded demonstration and change the room or table around it. The robot, task objects, and recorded actions stay the same. Augmentron generates a scene once, then reuses it across the recording’s fixed and wrist cameras.
 
-- **18.0% → 45.3%** Success with added distractors. Same training volume and schedule. Three tasks, one seed per task.
-- **30 min → 28 min** Source video → processing time. All four streams, on eight H100s.
-- **Generate once.** Reuse the scene across fixed and wrist cameras throughout the recording.
+- **Generalization · 18.0% → 45.3%** Success with added distractors. Real only → Augmentron 50/50. Same volume and schedule. Three tasks, one seed per task.
+- **Efficiency · 30 min → 28 min** Source video → processing time. All four streams, on eight H100s.
+- **Scalability · Generate once.** Reuse the scene across fixed and wrist cameras throughout the recording.
 
-## More settings for recorded motion.
+## Augmenting real demonstrations.
 
-Watch the robot and task objects as the rooms and tables change. These clips span cup placement, towel folding, and flower insertion. The wall grows from one augmented video to 49 examples from different recordings.
+These are recorded demonstrations with edited rooms and table surfaces. Each tile shows four synchronized cameras: the high and low fixed views above, and the left and right wrists below. The robot still folds the towel, places the cup, or inserts the flower. The wall expands to show examples across our recordings.
 
-**1 → 9 → 25 → 49 augmented videos.**
+**Four views per recording**
 
 *Replay expansion; Play / Pause; Expansion timeline.*
 
-*Room and table edits across cup, towel, and vase recordings. These early prototype clips cycle through generated appearances. The final method below holds each generated scene fixed through the recording.*
+*Plays here as you scroll. Drag the timeline to rewind.*
 
-## What shouldn’t change?
+**Four views. One pipeline. · 0.93×**
 
-The towel and grippers must stay where the recorded motion expects them. We protect those pixels, then edit the room or table around them.
+Processing time / source duration. Final pipeline benchmark · eight H100s.
+
+*The wall includes room and table edits from different recordings, shown through all four cameras. These early prototype clips cycle through appearances. The final method holds each generated scene fixed. The timing callout reports the final pipeline’s measured runtime.*
+
+## How does this work?
+
+We split the image into what should stay and what can change. The robot and task objects stay. The room and table surface can change.
+
+### Keep the robot and task objects.
+
+The towel and grippers must stay where the recorded motion expects them. We protect those pixels with masks, then composite them over the edited scene.
 
 The recorded joint angles and camera calibration place the robot’s 3D model in each view. Task instructions guide masks for the objects and tabletop.
 
-*Protected robot and protected towel overlays on the original frame. Hide masks / Show masks.*
+*Protected robot; Protected towel. Hide masks / Show masks.*
 
 *The original frame, with protected pixels overlaid. The source object mask also includes a few edge regions.*
 
-## Generate a scene once. Reuse it through the recording.
+### Change the room.
 
 The cameras on the robot’s wrists move with its arms. The generated room should stay put as those cameras move.
 
-We represent the surroundings with six views: a floor, a ceiling, and four walls. We generate those images and a static image of the working area once. Fixed-camera backgrounds are rendered once and reused. Wrist cameras render the surrounding scene from their changing recorded poses.
+We represent the room with six faces: a floor, a ceiling, and four walls. We generate an image for each face and a static image of the working area once. Fixed-camera backgrounds are rendered once and reused. Wrist cameras render the surrounding scene from their changing recorded poses.
 
 **One reusable room.**
 
 *Replay unfolding; Play / Pause; Unfolding timeline.*
 
+*Front wall; Back wall; Left wall; Right wall; Ceiling; Floor. Recorded camera.*
+
+*Plays here as you scroll. Drag the timeline to rewind.*
+
 *A schematic room made from six images. Each face is generated once. A wrist camera selects a view using its recorded pose.*
+
+Here is a room edit from the paper. Each camera sees the generated surroundings from its own pose.
+
+*High fixed; Low fixed; Left wrist; Right wrist.*
+
+*Room augmentation from the paper. The surroundings change; the wooden working surface, robot, and towel are retained.* [View full-resolution frame ↗](https://tanaytan.github.io/augmentron/assets/images/method/paper-environment-four-views.png)
+
+### Change the table.
 
 For a surface edit, we anchor a generated texture to the calibrated table plane. As the camera moves, the texture stays attached to the table. We composite the protected robot and task objects back over the rendered scene.
 
-That reuse is the main idea. Generating the scene assets is a one-time cost. More frames add rendering and compositing work.
+*High fixed; Low fixed; Left wrist; Right wrist.*
+
+*Surface augmentation from the paper. The generated texture follows the table geometry in each view. The robot and towel are retained.* [View full-resolution frame ↗](https://tanaytan.github.io/augmentron/assets/images/method/paper-surface-four-views.png)
 
 ### The full pipeline
 
 Robot-mesh projections and SAM 3 masks protect the recorded foreground. A temporal-median reference guides FLUX.2-klein-4B generation of a static working-area image and a six-image cubemap. Rendering and compositing reuse those assets across the trajectory.
 
-## 30 minutes of video. 28 minutes to augment.
+## Efficiency.
+
+**30 minutes of video. 28 minutes to augment.**
+
+Generating the scene is a one-time cost. We reuse those assets throughout the recording. Fixed cameras reuse the same rendered background. Wrist cameras render the scene from their changing poses.
+
+| Once per recording | For each frame |
+| --- | --- |
+| **Generate scene assets** | **Render and composite** |
+| The room and table appearance serve the full trajectory. | Use the camera pose. Restore the protected pixels. |
+
+*Generation is shared across the recording. Rendering follows the recorded motion.*
+
+We also share segmentation work. Stable fixed-camera surface masks can be reused. For some masks, we tile four frames together and segment them in one pass. Moving wrist-camera objects still need per-frame masks.
 
 We timed the complete pipeline on 104 cup demonstrations: 30 minutes of source video, four camera streams, and one node with eight H100s. Augmentron took 0.47 hours. RoboEngine, a generative augmentation baseline, took 8.14 hours on the same source set.
 
@@ -71,13 +108,15 @@ We timed the complete pipeline on 104 cup demonstrations: 30 minutes of source v
 
 ### Timing scope and Cosmos-Transfer1
 
-Timing covers cold model construction through local output audit. It excludes queueing, container-image retrieval, credential gates, artifact staging, inter-boot delays, and publication.
+Timing covers cold model construction through local output audit. It excludes queueing, container-image retrieval, credential and GPU gates, artifact staging, inter-boot delays, and publication.
 
 Cosmos-Transfer1 takes 10.31 hours for a measured single-view run. The paper extrapolates 23.79 hours for four views; that four-view figure was not measured directly.
 
 ## Does the robot improve?
 
-We fine-tuned π₀.₅, a pretrained robot model, separately for each of three tasks: placing a cup on a saucer, folding a towel, and inserting a flower into a vase. The dataset contains 1,793 real demonstrations and 9.16 hours of recorded data.
+None of the above matters unless the robot improves.
+
+We fine-tuned π₀.₅, a pretrained robot model, separately for each of three tasks: placing a cup on a saucer, folding a towel, and inserting a flower into a vase. The dataset contains 1,793 real demonstrations and 9.16 hours of recorded data. The pipeline processes all four cameras; the trained policies observe the high fixed view and both wrists.
 
 In the controlled experiment, we replaced half the training data with Augmentron edits: 50% real, 25% room edits, and 25% surface edits. Both recipes used the same data volume and 30,000 training updates. Each source demonstration was represented once.
 
@@ -108,6 +147,8 @@ The paper also compares larger training recipes. Those runs use different data v
 **Cameras and trials.** Augmentron processes two fixed and two wrist streams. The trained policies observe the high fixed view and both wrists. Starting configurations are manually reset and unpaired across models. Progress is scored from 0 to 3; only a score of 3 counts as success.
 
 **Physical rollout success rates (%)**
+
+*On a small screen, scroll the table sideways.*
 
 | Updates | Recipe | Volume | Task | Original | Distractors | Steel |
 | --- | --- | ---: | --- | ---: | ---: | ---: |
@@ -147,6 +188,8 @@ The real-only policy makes some progress. The policy trained with augmented data
 | Real only | Incomplete, progress score 1 of 3 |
 | Real + augmented | Complete, progress score 3 of 3 |
 
+*Examples play when this figure enters view. Replay both trials.*
+
 *Progress is scored from 0 to 3. Only a score of 3 counts as success. These are separate trials from an earlier prototype evaluation.*
 
 ## There’s still a lot of work to do here.
@@ -163,6 +206,8 @@ Accepted to the 8th Robot Learning Workshop: *Is Physical AI Going Zero-Shot?* a
 
 ### Cite the work
 
+*Copy BibTeX.*
+
 ```bibtex
 @misc{tandon2026augmentron,
   title = {Augmentron: Scalable Multi-View Visual
@@ -176,3 +221,5 @@ Accepted to the 8th Robot Learning Workshop: *Is Physical AI Going Zero-Shot?* a
   url = {https://tanaytan.github.io/augmentron/}
 }
 ```
+
+*Reduce motion.* [Website source](https://github.com/tanaytan/augmentron)
