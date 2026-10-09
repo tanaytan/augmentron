@@ -10,17 +10,19 @@ Accepted to the 8th Robot Learning Workshop: *Is Physical AI Going Zero-Shot?* a
 
 ## We can only collect robot data in so many rooms.
 
-Can synthetic data augmentation help robots generalize?
+Thus, we ask if synthetic data augmentation can help robots generalize?
 
-We take a recorded demonstration and change the room or table around it. The robot, task objects, and recorded actions stay the same. Augmentron generates a scene once, then reuses it across the recording’s fixed and wrist cameras.
+Augmentron starts with a demonstration we already have and gives it a different visual setting. The same towel fold can appear in a new room or against a different table surface, while the robot, towel, instructions, and recorded actions stay intact. To make that edit agree across fixed cameras and moving wrist views, we generate the scene once, then render it from the recorded camera poses throughout the demonstration.
 
-- **Generalization · 18.0% → 45.3%** Success with added distractors. Real only → Augmentron 50/50. Same volume and schedule. Three tasks, one seed per task.
-- **Efficiency · 30 min → 28 min** Source video → processing time. All four streams, on eight H100s.
-- **Scalability · Generate once.** Reuse the scene across fixed and wrist cameras throughout the recording.
+- **Generalization · 18.0% → 45.3%** Success with distractors.<br>Real only → Augmentron.
+
+- **Efficiency · 30 min → 28 min** Video → processing time.<br>Four views, eight H100s.
+
+- **Scalability · Generate once.** One scene per recording.<br>Shared across cameras.
 
 ## Augmenting real demonstrations.
 
-These are recorded demonstrations with edited rooms and table surfaces. Each tile shows four synchronized cameras: the high and low fixed views above, and the left and right wrists below. The robot still folds the towel, places the cup, or inserts the flower. The wall expands to show examples across our recordings.
+The wall expands to show room and table edits across our recordings. Look at the robot: it follows the original demonstration, folding the towel, placing the cup, or inserting the flower. Each tile brings together four synchronized views, with the high and low fixed cameras above and both wrists below.
 
 **Four views per recording**
 
@@ -28,33 +30,33 @@ These are recorded demonstrations with edited rooms and table surfaces. Each til
 
 *Plays here as you scroll. Drag the timeline to rewind.*
 
-**Four views. One pipeline. · 0.93×**
+**Multi-view consistent · 1×**
 
-Processing time / source duration. Final pipeline benchmark · eight H100s.
+GPU-hours / video-hour
 
-*The wall includes room and table edits from different recordings, shown through all four cameras. These early prototype clips cycle through appearances. The final method holds each generated scene fixed. The timing callout reports the final pipeline’s measured runtime.*
+*These clips come from the early prototype, which cycles through room and table appearances. In the final method, each generated scene stays fixed throughout a recording. The banner preserves the prototype presentation’s claim of 1 GPU-hour per video-hour; the benchmark below reports the final paper’s measured wall-clock time.*
 
 ## How does this work?
 
-We split the image into what should stay and what can change. The robot and task objects stay. The room and table surface can change.
+The recorded actions only make sense if the robot and the objects it handles remain unchanged. That gives us a boundary for the edit: preserve those regions, then change the surroundings or the table surface.
 
-### Keep the robot and task objects.
+### Start with what must stay.
 
-The towel and grippers must stay where the recorded motion expects them. We protect those pixels with masks, then composite them over the edited scene.
+A mask marks the pixels to preserve. For towel folding, that means the towel and robot, including the grippers. After rendering the new setting, we place these original pixels back over it.
 
-The recorded joint angles and camera calibration place the robot’s 3D model in each view. Task instructions guide masks for the objects and tabletop.
+Recorded joint angles tell us how to position the robot’s 3D model; camera calibration tells us where it appears in each image. Projecting that model gives us the robot mask. The task instructions guide segmentation of the objects and tabletop.
 
 *Protected robot; Protected towel. Hide masks / Show masks.*
 
-*The original frame, with protected pixels overlaid. The source object mask also includes a few edge regions.*
+*Masks over the original towel-folding frame. The object mask includes a few extra regions along the edges.*
 
-### Change the room.
+### Give the cameras one room to look at.
 
-The cameras on the robot’s wrists move with its arms. The generated room should stay put as those cameras move.
+A wrist camera can look down at the table, then turn toward the ceiling as the arm moves. Those views need to belong to the same room.
 
-We represent the room with six faces: a floor, a ceiling, and four walls. We generate an image for each face and a static image of the working area once. Fixed-camera backgrounds are rendered once and reused. Wrist cameras render the surrounding scene from their changing recorded poses.
+We reduce the room to six faces: a floor, a ceiling, and four walls. An image for each face, plus a static image of the working area, gives us a scene to reuse. Each fixed camera reuses its rendered background. For each wrist frame, the recorded camera pose tells us how to render a view of that same scene.
 
-**One reusable room.**
+**One reusable room**
 
 *Replay unfolding; Play / Pause; Unfolding timeline.*
 
@@ -62,63 +64,63 @@ We represent the room with six faces: a floor, a ceiling, and four walls. We gen
 
 *Plays here as you scroll. Drag the timeline to rewind.*
 
-*A schematic room made from six images. Each face is generated once. A wrist camera selects a view using its recorded pose.*
+*This schematic shows the six-image room representation. The recorded wrist-camera pose determines which part of it appears in a frame.*
 
-Here is a room edit from the paper. Each camera sees the generated surroundings from its own pose.
-
-*High fixed; Low fixed; Left wrist; Right wrist.*
-
-*Room augmentation from the paper. The surroundings change; the wooden working surface, robot, and towel are retained.* [View full-resolution frame ↗](https://tanaytan.github.io/augmentron/assets/images/method/paper-environment-four-views.png)
-
-### Change the table.
-
-For a surface edit, we anchor a generated texture to the calibrated table plane. As the camera moves, the texture stays attached to the table. We composite the protected robot and task objects back over the rendered scene.
+In this example from the paper, all four cameras look into the generated room from their recorded poses.
 
 *High fixed; Low fixed; Left wrist; Right wrist.*
 
-*Surface augmentation from the paper. The generated texture follows the table geometry in each view. The robot and towel are retained.* [View full-resolution frame ↗](https://tanaytan.github.io/augmentron/assets/images/method/paper-surface-four-views.png)
+*The paper’s room edit keeps the wooden table, robot, and blue towel inside new surroundings. [View full-resolution frame ↗](https://tanaytan.github.io/augmentron/assets/images/method/paper-environment-four-views.png)*
+
+### Anchor the new texture to the table.
+
+For a surface edit, we project a generated texture onto the calibrated table plane, so it stays attached to the surface as the wrists move. The protected robot and task objects go back over the rendered texture.
+
+*High fixed; Low fixed; Left wrist; Right wrist.*
+
+*The paper’s surface edit changes the tabletop in each view while preserving the robot and towel. [View full-resolution frame ↗](https://tanaytan.github.io/augmentron/assets/images/method/paper-surface-four-views.png)*
 
 ### The full pipeline
 
-Robot-mesh projections and SAM 3 masks protect the recorded foreground. A temporal-median reference guides FLUX.2-klein-4B generation of a static working-area image and a six-image cubemap. Rendering and compositing reuse those assets across the trajectory.
+Robot-mesh projections and SAM 3 segmentation identify the protected foreground. To recover the static scene, we exclude those pixels from sampled frames and take the median at each image location. This reference guides FLUX.2-klein-4B, which generates a working-area image and a six-image cubemap. We render these assets through the recorded camera poses and composite the original foreground over them.
 
 ## Efficiency.
 
-**30 minutes of video. 28 minutes to augment.**
+**Thirty minutes of video takes 28 minutes to augment.**
 
-Generating the scene is a one-time cost. We reuse those assets throughout the recording. Fixed cameras reuse the same rendered background. Wrist cameras render the scene from their changing poses.
+Once we have the scene, a longer recording adds rendering and compositing work. It does not require another round of generation for every frame. The same assets serve the fixed cameras and both moving wrists.
 
 | Once per recording | For each frame |
 | --- | --- |
 | **Generate scene assets** | **Render and composite** |
-| The room and table appearance serve the full trajectory. | Use the camera pose. Restore the protected pixels. |
+| Keep the generated appearance for the full recording. | Render from the camera pose and restore the protected pixels. |
 
-*Generation is shared across the recording. Rendering follows the recorded motion.*
+*Generate the appearance once; render it along the recorded motion.*
 
-We also share segmentation work. Stable fixed-camera surface masks can be reused. For some masks, we tile four frames together and segment them in one pass. Moving wrist-camera objects still need per-frame masks.
+Some segmentation work can be shared too. We reuse stable fixed-camera surface masks and estimate some masks by tiling four frames into one image. Wrist-camera objects still need a separate mask for each view and frame.
 
-We timed the complete pipeline on 104 cup demonstrations: 30 minutes of source video, four camera streams, and one node with eight H100s. Augmentron took 0.47 hours. RoboEngine, a generative augmentation baseline, took 8.14 hours on the same source set.
+For the benchmark, we used 104 cup demonstrations totaling 30 minutes, with four camera streams on one node with eight H100s. The complete Augmentron pipeline took 0.47 hours. RoboEngine, a generative augmentation baseline, took 8.14 hours with the same data and hardware.
 
 | Pipeline | Measured wall-clock time |
 | --- | ---: |
 | Augmentron | 0.47 hours |
 | RoboEngine | 8.14 hours |
 
-*Measured wall-clock processing time on the same source data and hardware. Augmentron runs at 0.93× source duration.*
+*Measured wall-clock time for the two pipelines on the same data and hardware. Augmentron’s processing time is 0.93× the source-video duration.*
 
 ### Timing scope and Cosmos-Transfer1
 
-Timing covers cold model construction through local output audit. It excludes queueing, container-image retrieval, credential and GPU gates, artifact staging, inter-boot delays, and publication.
+The clock starts with cold model construction and stops after the local output audit. Queueing, container-image retrieval, credential and GPU gates, artifact staging, inter-boot delays, and publication fall outside this measurement.
 
-Cosmos-Transfer1 takes 10.31 hours for a measured single-view run. The paper extrapolates 23.79 hours for four views; that four-view figure was not measured directly.
+A single-view Cosmos-Transfer1 run took 10.31 hours. Extrapolating its per-view stages gives 23.79 hours for four views. The paper reports that estimate separately from the measured runs.
 
 ## Does the robot improve?
 
 None of the above matters unless the robot improves.
 
-We fine-tuned π₀.₅, a pretrained robot model, separately for each of three tasks: placing a cup on a saucer, folding a towel, and inserting a flower into a vase. The dataset contains 1,793 real demonstrations and 9.16 hours of recorded data. The pipeline processes all four cameras; the trained policies observe the high fixed view and both wrists.
+Our dataset contains 1,793 real demonstrations, or 9.16 hours, across placing a cup on a saucer, folding a towel, and inserting a flower into a vase. For each task, we fine-tuned a separate policy from π₀.₅, a pretrained robot model. Augmentron processes all four camera streams; the policies see the high fixed view and both wrists.
 
-In the controlled experiment, we replaced half the training data with Augmentron edits: 50% real, 25% room edits, and 25% surface edits. Both recipes used the same data volume and 30,000 training updates. Each source demonstration was represented once.
+The controlled experiment replaces half the training data with edits: 50% real demonstrations, 25% room edits, and 25% surface edits. Every source demonstration appears once. This keeps data volume and the 30,000-update training schedule matched to real-only training. We then test both policies in the original setup, with unrelated objects added, and with reflective steel covering the wooden surface.
 
 **Task success: same data volume and training schedule**
 
@@ -128,23 +130,23 @@ In the controlled experiment, we replaced half the training data with Augmentron
 | Added distractors | Same task, extra objects | 18.0% | 45.3% |
 | Steel surface | Wood replaced with reflective steel | 50.7% | 67.3% |
 
-*Only full task completion counts as success. Each percentage pools 150 rollouts per recipe and condition, with 50 per task. One training seed per task and recipe.*
+*Each percentage pools 150 physical rollouts per recipe and condition, with 50 for each task. Success requires completing the whole task. There is one training seed per task and recipe.*
 
-With extra objects on the table, success rises from **18.0% to 45.3%**, a gain of 27.3 percentage points. We didn’t explicitly insert distractors during augmentation. The gains suggest that changing rooms and surfaces can also help with added clutter.
+The largest pooled gain appears in the distractor test: success rises from **18.0% to 45.3%**, or 27.3 percentage points. We didn’t explicitly insert distractors during augmentation. The room and surface edits appear to help the robot handle added clutter too.
 
-The gains vary by task. All three tasks improve with distractors and on steel. In the original setup, cup placement falls from 86% to 72%, even though pooled success improves.
+Looking at individual tasks changes the picture. All three improve with distractors and on steel, but cup placement in the original setup falls from 86% to 72%. The pooled improvement hides that tradeoff.
 
-The paper also compares larger training recipes. Those runs use different data volumes; the breakdown and full results are below.
+The paper also tests recipes that keep the full real corpus and add augmented data. Their volumes differ, so the full results below need to be read with those differences in mind.
 
 ### Task results and larger recipes
 
-**Same volume.** Real only and 50/50 share the 30k-update schedule and 1× data volume. Source episodes are split into disjoint halves, so every demonstration is represented once.
+**Same volume.** Real only and Augmentron 50/50 use 1× data volume and the same 30k-update schedule. For 50/50, disjoint source-episode halves supply the real and edited data, keeping every demonstration represented once.
 
-**Larger recipes.** All three train for 45k updates. Augmentron uses 3× volume; RoboEngine and Masked Noise use 2×. RoboEngine is a generative augmentation baseline. Masked Noise changes unprotected pixels with static, pixelation, blur, blackout, or color jitter. These comparisons evaluate the complete recipes and do not isolate each pipeline component.
+**Larger recipes.** At 45k updates, Augmentron uses 3× data volume, while RoboEngine and Masked Noise each use 2×. RoboEngine generates visual edits. Masked Noise applies static, pixelation, blur, blackout, or color jitter outside protected regions. These runs compare complete recipes; they leave the effects of data volume and individual pipeline components unresolved.
 
-**Exploratory checkpoint.** The 30k Augmentron 33/67 checkpoint comes from a run scheduled for 45k updates. Compared with 50/50 at 30k, pooled distractor success rises from 45.3% to 50.7%, while original-setup and surface success fall. Its data volume and decay schedule differ. These runs do not establish a scaling trend.
+**Exploratory checkpoint.** The 30k Augmentron 33/67 checkpoint belongs to a run scheduled for 45k updates. It raises pooled distractor success from 45.3% to 50.7% relative to 50/50 at 30k, while success falls in the original setup and on steel. With both data volume and the decay schedule changed, this comparison cannot establish a scaling trend.
 
-**Cameras and trials.** Augmentron processes two fixed and two wrist streams. The trained policies observe the high fixed view and both wrists. Starting configurations are manually reset and unpaired across models. Progress is scored from 0 to 3; only a score of 3 counts as success.
+**Cameras and trials.** The pipeline processes two fixed and two wrist streams; policies observe the high fixed view and both wrists. Operators manually reset the starting configurations, which are unpaired across models. Rollout progress ranges from 0 to 3, and only 3 counts as success.
 
 **Physical rollout success rates (%)**
 
@@ -179,9 +181,9 @@ The paper also compares larger training recipes. Those runs use different data v
 
 [Download results CSV](https://tanaytan.github.io/augmentron/assets/results.csv)
 
-### Two prototype trials with distractors.
+### What two prototype trials look like.
 
-The real-only policy makes some progress. The policy trained with augmented data completes the task. These illustrative trials start from different manually reset configurations; the figure above summarizes the full evaluation.
+The real-only policy makes partial progress. The policy trained with augmented data completes the task. The clips show the behavior from different manually reset starting configurations. For the full evaluation, look to the chart above.
 
 | Illustrative trial | Outcome |
 | --- | --- |
@@ -190,13 +192,13 @@ The real-only policy makes some progress. The policy trained with augmented data
 
 *Examples play when this figure enters view. Replay both trials.*
 
-*Progress is scored from 0 to 3. Only a score of 3 counts as success. These are separate trials from an earlier prototype evaluation.*
+*Two separate trials from the earlier prototype evaluation. A score of 1 marks partial progress; 3 marks completion and counts as success.*
 
 ## There’s still a lot of work to do here.
 
-These tests cover three tasks, three visual conditions, and one training seed per task and recipe. Augmentron also needs calibrated cameras, robot geometry, and usable masks. It changes appearance while keeping the recorded behavior.
+Three tasks and three visual conditions give us a useful first test. With one training seed per task and recipe, we still need to learn how much these results vary across training runs. The pipeline also depends on camera calibration, robot geometry, and usable masks. Its edits broaden the visual settings around a behavior we already recorded.
 
-The next question I’d like to ask: what happens when this goes into pretraining or midtraining? The experiments here are fine-tuning runs. Larger-scale training remains future work.
+I’d next like to see what happens when this data goes into pretraining or midtraining. These experiments only test fine-tuning. Can the same reuse of recorded behavior help at that larger scale?
 
 ## Read the paper.
 
