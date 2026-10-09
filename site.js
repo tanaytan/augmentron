@@ -13,39 +13,158 @@ const recipes = [
 const taskNames = {cup:'Cup on saucer',towel:'Fold a towel',vase:'Flower in vase'};
 $('#all-results-body').innerHTML = recipes.map(r => ['cup','towel','vase','pooled'].map((task,i) => `<tr><td>${r.steps}</td><td>${r.name}</td><td>${r.volume}</td><td>${i===3?'Pooled':taskNames[task]}</td>${[0,1,2].map(c=>`<td>${i===3?r.pooled[c].toFixed(1):r.values[c][i]}</td>`).join('')}</tr>`).join('')).join('');
 
+// Figures stay at their first frame until the reader reaches them.
+// Each player owns its clock, so pausing or scrubbing cancels automatic progress.
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 let motionReduced = motionPreference.matches;
+let figuresArmed = Boolean(location.hash && location.hash !== '#main');
+let previousScroll = scrollY;
 const expansion = $('#expansion-stage');
-let expansionTimers = [];
-let expansionStarted = false;
-function clearExpansion() { expansionTimers.forEach(clearTimeout);expansionTimers=[]; }
-function setExpansionStep(step) {
-  expansion.dataset.step=String(step);
-  $('#expansion-status').textContent = step===1?'1 augmented example':step*step+' augmented examples';
-}
-function replayExpansion() {
-  clearExpansion();
-  expansionStarted = true;
-  if (motionReduced) { setExpansionStep(7);return; }
-  setExpansionStep(1);
-  // Hold the first example before revealing successive square rings.
-  [[1500,3],[3500,5],[5500,7]].forEach(([delay,step])=>expansionTimers.push(setTimeout(()=>setExpansionStep(step),delay)));
-}
-$('#expansion-replay').addEventListener('click',replayExpansion);
-setExpansionStep(motionReduced?7:1);
-
+const expansionVideo = $('#expansion-video');
+const expansionStatic = $('#expansion-static');
+const expansionState = {visible:false,userPaused:false,manual:false,pending:false,request:0,seek:null};
 const room = $('#room-stage');
-let roomTimer;
-let roomStarted = false;
-function replayRoom() {
-  clearTimeout(roomTimer);
-  roomStarted=true;
-  if (motionReduced) { room.classList.add('unfolded');return; }
-  room.classList.remove('unfolded');
-  roomTimer = setTimeout(()=>room.classList.add('unfolded'),1100);
+const roomState = {visible:false,userPaused:false,manual:false,time:0,playing:false,frame:0,lastStamp:0};
+const clockText = seconds => '0:'+String(Math.floor(seconds)).padStart(2,'0');
+function figureVisible(stage) {
+  if(document.hidden) return false;
+  const r=stage.getBoundingClientRect();
+  const top=$('.site-header').getBoundingClientRect().bottom;
+  const visible=Math.min(r.bottom,innerHeight)-Math.max(r.top,top);
+  return r.width>0 && visible>=Math.min(r.height*.5,(innerHeight-top)*.5);
 }
-$('#room-replay').addEventListener('click',replayRoom);
-if (motionReduced) room.classList.add('unfolded');
+function wantsPlayback(state) {
+  return state.visible && (figuresArmed||state.manual) && !state.userPaused && (!motionReduced||state.manual);
+}
+function renderExpansion() {
+  const t=motionReduced&&!expansionState.manual?12.3:expansionState.seek ?? (expansionVideo.currentTime||0);
+  const duration=Number.isFinite(expansionVideo.duration)?expansionVideo.duration:16;
+  const label=t<2.4?'1 augmented video':t<3.9?'1 → 9 augmented videos':t<6.4?'9 augmented videos':t<7.9?'9 → 25 augmented videos':t<10.4?'25 augmented videos':t<11.9?'25 → 49 augmented videos':'49 augmented videos';
+  $('#expansion-status').textContent=label;
+  $('#expansion-progress').max=String(duration);
+  $('#expansion-progress').value=String(t);
+  $('#expansion-progress').setAttribute('aria-valuetext',t.toFixed(1)+' of '+duration.toFixed(0)+' seconds');
+  $('#expansion-time').textContent=clockText(t)+' / '+clockText(duration);
+  const playing=!expansionVideo.paused||expansionState.pending;
+  $('#expansion-play').textContent=playing?'Pause':'Play';
+  $('#expansion-play').setAttribute('aria-label',(playing?'Pause':'Play')+' expansion');
+  $('#expansion-hint').textContent=motionReduced&&!expansionState.manual?'Motion reduced. Press Play to watch, or scrub the timeline.':expansionState.userPaused?'Paused. Drag the timeline or press Play.':expansionState.pending?'Loading the video. Press Pause to stop.':playing?'Loops while in view. Drag the timeline to rewind.':'Plays here as you scroll. Drag the timeline to rewind.';
+}
+async function syncExpansion() {
+  if(!wantsPlayback(expansionState)) {
+    ++expansionState.request;expansionState.pending=false;expansionVideo.pause();renderExpansion();return;
+  }
+  if(!expansionVideo.paused||expansionState.pending)return;
+  const request=++expansionState.request;
+  expansionState.pending=true;renderExpansion();
+  try {
+    await expansionVideo.play();
+    if(request!==expansionState.request)return;
+    if(!wantsPlayback(expansionState))expansionVideo.pause();
+  } catch {
+    if(request===expansionState.request && wantsPlayback(expansionState)) {
+      expansionState.userPaused=true;
+      $('#expansion-hint').textContent='Press Play to watch the expansion.';
+    }
+  } finally {
+    if(request===expansionState.request) {expansionState.pending=false;renderExpansion();}
+  }
+}
+function showExpansionVideo() {
+  expansionStatic.hidden=true;expansionVideo.hidden=false;
+}
+function seekExpansion(time) {
+  showExpansionVideo();
+  if(expansionVideo.readyState>=1) {expansionVideo.currentTime=time;expansionState.seek=null;}
+  else {++expansionState.request;expansionState.pending=false;expansionVideo.pause();expansionState.seek=time;expansionVideo.preload='auto';expansionVideo.load();}
+  renderExpansion();
+}
+expansionVideo.controls=false;
+['timeupdate','play','pause','durationchange','seeked'].forEach(event=>expansionVideo.addEventListener(event,renderExpansion));
+expansionVideo.addEventListener('loadedmetadata',()=>{
+  if(expansionState.seek!==null) {expansionVideo.currentTime=expansionState.seek;expansionState.seek=null;}
+  renderExpansion();
+});
+$('#expansion-play').addEventListener('click',()=>{
+  expansionState.manual=true;showExpansionVideo();
+  expansionState.userPaused=!expansionVideo.paused||expansionState.pending;
+  expansionState.visible=figureVisible(expansion);
+  syncExpansion();
+});
+$('#expansion-replay').addEventListener('click',()=>{
+  expansionState.manual=true;expansionState.userPaused=false;
+  seekExpansion(0);expansionState.visible=figureVisible(expansion);syncExpansion();
+});
+$('#expansion-progress').addEventListener('input',event=>{
+  const time=Number(event.target.value);
+  expansionState.manual=true;expansionState.userPaused=true;syncExpansion();
+  seekExpansion(time);
+});
+function smoothProgress(x) {return x*x*(3-2*x);}
+function renderRoom() {
+  const t=roomState.time;
+  const unfold=t<1.2?0:t<3?smoothProgress((t-1.2)/1.8):t<6.1?1:t<7.6?1-smoothProgress((t-6.1)/1.5):0;
+  room.style.setProperty('--unfold',String(unfold));
+  room.dataset.time=t.toFixed(2);
+  $('#room-progress').value=String(t);
+  $('#room-progress').setAttribute('aria-valuetext',t.toFixed(1)+' of 8 seconds');
+  $('#room-time').textContent=clockText(t)+' / 0:08';
+  $('#room-play').textContent=roomState.playing?'Pause':'Play';
+  $('#room-play').setAttribute('aria-label',(roomState.playing?'Pause':'Play')+' unfolding');
+  $('#room-hint').textContent=motionReduced&&!roomState.manual?'Motion reduced. Press Play to watch, or scrub the timeline.':roomState.userPaused?'Paused. Drag the timeline or press Play.':roomState.playing?'Loops while in view. Drag the timeline to rewind.':'Plays here as you scroll. Drag the timeline to rewind.';
+}
+function roomTick(stamp) {
+  if(!roomState.playing)return;
+  if(roomState.lastStamp)roomState.time=(roomState.time+(stamp-roomState.lastStamp)/1000)%8;
+  roomState.lastStamp=stamp;renderRoom();
+  roomState.frame=requestAnimationFrame(roomTick);
+}
+function syncRoom() {
+  const playing=wantsPlayback(roomState);
+  if(playing===roomState.playing)return;
+  roomState.playing=playing;roomState.lastStamp=0;
+  cancelAnimationFrame(roomState.frame);
+  if(playing)roomState.frame=requestAnimationFrame(roomTick);
+  renderRoom();
+}
+$('#room-play').addEventListener('click',()=>{
+  roomState.manual=true;roomState.userPaused=roomState.playing;
+  roomState.visible=figureVisible(room);syncRoom();
+});
+$('#room-replay').addEventListener('click',()=>{
+  roomState.manual=true;roomState.userPaused=false;roomState.time=0;roomState.lastStamp=0;
+  roomState.visible=figureVisible(room);renderRoom();syncRoom();
+});
+$('#room-progress').addEventListener('input',event=>{
+  const time=Number(event.target.value);
+  roomState.manual=true;roomState.userPaused=true;syncRoom();
+  roomState.time=time;renderRoom();
+});
+function checkFigures() {
+  [ [expansion,expansionState], [room,roomState] ].forEach(([stage,state])=>{
+    const visible=figureVisible(stage);
+    if(visible&&!state.visible&&!state.userPaused&&!state.manual) {
+      if(stage===expansion) {
+        if(expansionVideo.readyState>=1)expansionVideo.currentTime=0;
+      } else {roomState.time=motionReduced&&!roomState.manual?4:0;roomState.lastStamp=0;renderRoom();}
+    }
+    state.visible=visible;
+  });
+  syncExpansion();syncRoom();
+}
+if('IntersectionObserver' in window) {
+  const observer=new IntersectionObserver(checkFigures,{threshold:[0,.25,.5,.75,1]});
+  observer.observe(expansion);observer.observe(room);
+}
+let figureCheckQueued=false;
+window.addEventListener('scroll',()=>{
+  if(scrollY!==previousScroll)figuresArmed=true;
+  previousScroll=scrollY;
+  if(!figureCheckQueued) {figureCheckQueued=true;requestAnimationFrame(()=>{figureCheckQueued=false;checkFigures();});}
+},{passive:true});
+window.addEventListener('resize',checkFigures);
+document.addEventListener('visibilitychange',checkFigures);
+renderExpansion();renderRoom();
 
 $('#mask-toggle').addEventListener('click',()=>{
   const button=$('#mask-toggle');
@@ -56,6 +175,10 @@ $('#mask-toggle').addEventListener('click',()=>{
 });
 
 const trials = $$('#rollouts video');
+function trialFigureOnScreen() {
+  const r=$('#rollouts').getBoundingClientRect();
+  return !document.hidden && r.bottom>$('.site-header').getBoundingClientRect().bottom && r.top<innerHeight;
+}
 let trialsVisible=false;
 let trialsStarted=false;
 let playVersion=0;
@@ -77,7 +200,7 @@ async function playTrials(reset=false,explicit=false,selected=trials) {
   try {
     selected.forEach(video=>video.pause());
     await Promise.all(selected.map(readyVideo));
-    if (version!==playVersion || (!trialsVisible&&!explicit) || (motionReduced&&!explicit)) return;
+    if (version!==playVersion || !trialFigureOnScreen() || (!trialsVisible&&!explicit) || (motionReduced&&!explicit)) return;
     if (reset) selected.forEach(video=>{video.currentTime=0;});
     await Promise.all(selected.map(video=>video.play()));
     if (version!==playVersion) return;
@@ -87,7 +210,10 @@ async function playTrials(reset=false,explicit=false,selected=trials) {
     if(version===playVersion) $('#rollout-status').textContent='Use the video controls to play each trial.';
   }
 }
-$('#rollout-replay').addEventListener('click',()=>playTrials(true,true));
+$('#rollout-replay').addEventListener('click',()=>{
+  if(!trialFigureOnScreen())$('#rollouts').scrollIntoView({block:'center',behavior:'instant'});
+  playTrials(true,true);
+});
 trials.forEach(video=>video.addEventListener('ended',()=>{
   if(trials.every(v=>v.ended)) $('#rollout-status').textContent='Both trials finished. Replay to watch again.';
 }));
@@ -97,29 +223,34 @@ function applyMotionPreference() {
   $('#animation-toggle').setAttribute('aria-pressed',String(motionReduced));
   $('#animation-toggle').textContent=motionReduced?'Motion reduced':'Reduce motion';
   if(motionReduced) {
-    clearExpansion();setExpansionStep(7);
-    clearTimeout(roomTimer);room.classList.add('unfolded');
+    expansionState.manual=false;roomState.manual=false;
+    expansionVideo.pause();expansionVideo.hidden=true;expansionStatic.hidden=false;
+    roomState.time=4;roomState.lastStamp=0;renderRoom();
     ++playVersion;trials.forEach(v=>v.pause());resumeTrials=[];
     $('#rollout-status').textContent='Motion reduced. Use the video controls or replay button.';
-  } else if(trialsVisible) playTrials(!trialsStarted);
+  } else {
+    expansionStatic.hidden=true;expansionVideo.hidden=false;
+    if(trialsVisible)playTrials(!trialsStarted);
+  }
+  checkFigures();renderExpansion();renderRoom();
 }
 $('#animation-toggle').addEventListener('click',()=>{motionReduced=!motionReduced;applyMotionPreference();});
 motionPreference.addEventListener('change',()=>{motionReduced=motionPreference.matches;applyMotionPreference();});
 applyMotionPreference();
 
 if('IntersectionObserver' in window) {
-  const figureObserver=new IntersectionObserver(entries=>{
-    entries.forEach(entry=>{
-      if(!entry.isIntersecting || entry.intersectionRatio<.4)return;
-      if(entry.target===expansion&&!expansionStarted) replayExpansion();
-      if(entry.target===room&&!roomStarted) replayRoom();
-    });
-  },{threshold:[0,.4]});
-  figureObserver.observe(expansion);figureObserver.observe(room);
   new IntersectionObserver(entries=>{
     const entry=entries[0];
     const visible=entry.isIntersecting&&entry.intersectionRatio>=.25;
-    if(visible===trialsVisible)return;
+    if(visible===trialsVisible) {
+      if(!trialFigureOnScreen()) {
+        ++playVersion;
+        const playing=trials.filter(v=>!v.paused&&!v.ended);
+        if(playing.length)resumeTrials=playing;
+        trials.forEach(v=>v.pause());
+      }
+      return;
+    }
     trialsVisible=visible;
     if(visible&&!motionReduced) {
       if(!trialsStarted)playTrials(true);
@@ -131,9 +262,27 @@ if('IntersectionObserver' in window) {
     }
   },{threshold:[0,.25]}).observe($('#rollouts'));
 } else {
-  setExpansionStep(7);room.classList.add('unfolded');
   $('#rollout-status').textContent='Use the video controls or replay button.';
 }
+
+// Native playback remains available, while hidden pages and departed figures stop work.
+trials.forEach(video=>video.addEventListener('playing',()=>{
+  if(trialFigureOnScreen())trialsStarted=true;
+}));
+trials.forEach(video=>video.addEventListener('play',()=>{
+  if(!trialFigureOnScreen()) {
+    ++playVersion;video.pause();
+  }
+}));
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden) {
+    ++playVersion;resumeTrials=trials.filter(v=>!v.paused&&!v.ended);
+    trials.forEach(v=>v.pause());
+  } else if(trialsVisible&&!motionReduced) {
+    if(!trialsStarted)playTrials(true);
+    else if(resumeTrials.length)playTrials(false,false,resumeTrials);
+  }
+});
 
 $('#copy-citation').addEventListener('click',async()=>{
   const status=$('#citation-status');

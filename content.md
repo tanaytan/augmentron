@@ -10,23 +10,23 @@ Accepted to the 8th Robot Learning Workshop: *Is Physical AI Going Zero-Shot?* a
 
 ## We can only collect robot data in so many rooms.
 
-Augmentron asks whether synthetic data augmentation can help robots generalize to new visual settings.
+Augmentron asks: can synthetic data help robots generalize?
 
-We want our robots to work in everybody’s homes. We change the room or table around a recorded demonstration, while keeping its motion and task. We generate the scene once, then render it from every recorded camera pose.
+We want our robots to work in everybody’s homes. Augmentron changes the room or table in an existing demonstration, like folding a towel. It preserves the recorded motion and task objects. We generate the scene once and reuse it across the camera views.
 
 - **18.0% → 45.3%** Success with added distractors. Same training volume and schedule. Three tasks, one seed per task.
-- **30 min → 28 min** Source video → processing time. All four camera streams.
+- **30 min → 28 min** Source video → processing time. All four streams, on eight H100s.
 - **Generate once.** Reuse the scene across fixed and wrist cameras throughout the recording.
 
-## More settings from the recordings we already have.
+## More settings for recorded motion.
 
-A recorded demonstration contains a particular room and table. Augmentron gives that motion more visual settings. The robot still folds the towel, places the cup, or puts the flower in the vase. Its recorded actions and training labels stay the same.
+Watch the robot and task objects as the rooms and tables change. These clips span cup placement, towel folding, and flower insertion. The wall grows from one augmented video to 49 examples from different recordings.
 
-Here is what those edits look like across our recordings.
+**1 → 9 → 25 → 49 augmented videos.**
 
-**1 → 9 → 25 → 49 augmented examples.**
+*Replay expansion; Play / Pause; Expansion timeline.*
 
-*Room and table edits from an earlier prototype, across cup, towel, and vase recordings. Each still shows the high fixed camera. The final pipeline below reuses each generated scene through the recording.*
+*Room and table edits across cup, towel, and vase recordings. These early prototype clips cycle through generated appearances. The final method below holds each generated scene fixed through the recording.*
 
 ## What shouldn’t change?
 
@@ -40,11 +40,15 @@ The recorded joint angles and camera calibration place the robot’s 3D model in
 
 ## Generate a scene once. Reuse it through the recording.
 
+The cameras on the robot’s wrists move with its arms. The generated room should stay put as those cameras move.
+
 We represent the surroundings with six views: a floor, a ceiling, and four walls. We generate those images and a static image of the working area once. Fixed-camera backgrounds are rendered once and reused. Wrist cameras render the surrounding scene from their changing recorded poses.
 
 **One reusable room.**
 
-*An unfolded cubemap, shown schematically. Each face is generated once. A wrist camera selects a view using its recorded pose.*
+*Replay unfolding; Play / Pause; Unfolding timeline.*
+
+*A schematic room made from six images. Each face is generated once. A wrist camera selects a view using its recorded pose.*
 
 For a surface edit, we anchor a generated texture to the calibrated table plane. As the camera moves, the texture stays attached to the table. We composite the protected robot and task objects back over the rendered scene.
 
@@ -73,7 +77,7 @@ Cosmos-Transfer1 takes 10.31 hours for a measured single-view run. The paper ext
 
 ## Does the robot improve?
 
-We fine-tuned π₀.₅ policies for three tasks: placing a cup on a saucer, folding a towel, and inserting a flower into a vase. The dataset contains 1,793 real demonstrations and 9.16 hours of recorded data.
+We fine-tuned π₀.₅, a pretrained robot model, separately for each of three tasks: placing a cup on a saucer, folding a towel, and inserting a flower into a vase. The dataset contains 1,793 real demonstrations and 9.16 hours of recorded data.
 
 In the controlled experiment, we replaced half the training data with Augmentron edits: 50% real, 25% room edits, and 25% surface edits. Both recipes used the same data volume and 30,000 training updates. Each source demonstration was represented once.
 
@@ -87,7 +91,7 @@ In the controlled experiment, we replaced half the training data with Augmentron
 
 *Only full task completion counts as success. Each percentage pools 150 rollouts per recipe and condition, with 50 per task. One training seed per task and recipe.*
 
-With extra objects on the table, success rises from **18.0% to 45.3%**, a gain of 27.3 percentage points. We changed rooms and surfaces during augmentation. We didn’t explicitly insert distractors. The test asks whether those edits transfer to another kind of visual shift.
+With extra objects on the table, success rises from **18.0% to 45.3%**, a gain of 27.3 percentage points. We didn’t explicitly insert distractors during augmentation. The gains suggest that changing rooms and surfaces can also help with added clutter.
 
 The gains vary by task. All three tasks improve with distractors and on steel. In the original setup, cup placement falls from 86% to 72%, even though pooled success improves.
 
@@ -134,7 +138,7 @@ The paper also compares larger training recipes. Those runs use different data v
 
 [Download results CSV](https://tanaytan.github.io/augmentron/assets/results.csv)
 
-### Two trials with distractors.
+### Two prototype trials with distractors.
 
 The real-only policy makes some progress. The policy trained with augmented data completes the task. These illustrative trials start from different manually reset configurations; the figure above summarizes the full evaluation.
 
