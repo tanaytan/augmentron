@@ -34,7 +34,7 @@ The recorded actions only make sense if the robot and the objects it handles rem
 
 ### Start with what must stay.
 
-A mask marks the pixels to preserve. For towel folding, that means the towel and robot, including the grippers. After rendering the new setting, we place these original pixels back over it.
+A mask identifies the pixels to keep: the towel, robot, and grippers. We place those original pixels over the rendered setting.
 
 Recorded joint angles tell us how to position the robot’s 3D model; camera calibration tells us where it appears in each image. Projecting that model gives us the robot mask. The task instructions guide segmentation of the objects and tabletop.
 
@@ -53,8 +53,6 @@ We reduce the room to six faces: a floor, a ceiling, and four walls. An image fo
 *Replay unfolding; Play / Pause; Unfolding timeline.*
 
 *Front wall; Back wall; Left wall; Right wall; Ceiling; Floor. Recorded camera.*
-
-*Plays here as you scroll. Drag the timeline to rewind.*
 
 *This schematic shows the six-image room representation. The recorded wrist-camera pose determines which part of it appears in a frame.*
 
@@ -184,9 +182,7 @@ The real-only policy makes partial progress. The policy trained with augmented d
 | Real only | Incomplete, progress score 1 of 3 |
 | Real + augmented | Complete, progress score 3 of 3 |
 
-*Examples play when this figure enters view. Replay both trials.*
-
-*Two separate trials from the earlier prototype evaluation. A score of 1 marks partial progress; 3 marks completion and counts as success.*
+*Replay both trials.*
 
 ## There’s still a lot of work to do here.
 

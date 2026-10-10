@@ -133,7 +133,6 @@ function renderRoom() {
   $('#room-time').textContent=clockText(t)+' / 0:08';
   $('#room-play').textContent=roomState.playing?'Pause':'Play';
   $('#room-play').setAttribute('aria-label',(roomState.playing?'Pause':'Play')+' unfolding');
-  $('#room-hint').textContent=motionReduced&&!roomState.manual?'Motion reduced. Press Play to watch, or scrub the timeline.':roomState.userPaused?'Paused. Drag the timeline or press Play.':roomState.playing?'Loops while in view. Drag the timeline to rewind.':'Plays here as you scroll. Drag the timeline to rewind.';
 }
 function roomTick(stamp) {
   if(!roomState.playing)return;
@@ -218,7 +217,6 @@ function readyVideo(video) {
 }
 async function playTrials(reset=false,explicit=false,selected=trials) {
   const version=++playVersion;
-  $('#rollout-status').textContent='Loading both trials…';
   try {
     selected.forEach(video=>video.pause());
     await Promise.all(selected.map(readyVideo));
@@ -227,18 +225,14 @@ async function playTrials(reset=false,explicit=false,selected=trials) {
     await Promise.all(selected.map(video=>video.play()));
     if (version!==playVersion) return;
     trialsStarted=true;
-    $('#rollout-status').textContent='Sound is off. Use each video’s controls to pause or play.';
   } catch {
-    if(version===playVersion) $('#rollout-status').textContent='Use the video controls to play each trial.';
+    // Native video controls remain available if automatic playback fails.
   }
 }
 $('#rollout-replay').addEventListener('click',()=>{
   if(!trialFigureOnScreen())$('#rollouts').scrollIntoView({block:'center',behavior:'instant'});
   playTrials(true,true);
 });
-trials.forEach(video=>video.addEventListener('ended',()=>{
-  if(trials.every(v=>v.ended)) $('#rollout-status').textContent='Both trials finished. Replay to watch again.';
-}));
 
 function applyMotionPreference() {
   document.documentElement.dataset.motion=motionReduced?'reduced':'full';
@@ -249,7 +243,6 @@ function applyMotionPreference() {
     expansionVideo.pause();expansionVideo.hidden=true;expansionStatic.hidden=false;
     roomState.time=4;roomState.lastStamp=0;renderRoom();
     ++playVersion;trials.forEach(v=>v.pause());resumeTrials=[];
-    $('#rollout-status').textContent='Motion reduced. Use the video controls or replay button.';
   } else {
     expansionStatic.hidden=true;expansionVideo.hidden=false;
     if(trialsVisible)playTrials(!trialsStarted);
@@ -283,8 +276,6 @@ if('IntersectionObserver' in window) {
       trials.forEach(v=>v.pause());
     }
   },{threshold:[0,.25]}).observe($('#rollouts'));
-} else {
-  $('#rollout-status').textContent='Use the video controls or replay button.';
 }
 
 // Native playback remains available, while hidden pages and departed figures stop work.
