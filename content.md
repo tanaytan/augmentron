@@ -12,7 +12,7 @@ Accepted to the 8th Robot Learning Workshop: *Is Physical AI Going Zero-Shot?* a
 
 Thus, we ask if synthetic data augmentation can help robots generalize?
 
-Augmentron starts with a demonstration we already have and gives it a different visual setting. The same towel fold can appear in a new room or against a different table surface, while the robot, towel, instructions, and recorded actions stay intact. To make that edit agree across fixed cameras and moving wrist views, we generate the scene once, then render it from the recorded camera poses throughout the demonstration.
+Augmentron takes a demonstration you already have and gives it a different visual setting. The same towel fold can appear in a new room or against a different table surface, while the robot, towel, instructions, and recorded actions stay intact. To make that edit agree across fixed cameras and moving wrist views, we generate the scene once, then render it from the recorded camera poses throughout the demonstration.
 
 - **Generalization · 18.0% → 45.3%** Success with distractors.<br>Real only → Augmentron.
 
@@ -30,25 +30,23 @@ GPU-hours / video-hour
 
 ## How does this work?
 
-The recorded actions only make sense if the robot and the objects it handles remain unchanged. That gives us a boundary for the edit: preserve those regions, then change the surroundings or the table surface.
+Before we can change the setting, we need to separate the robot and task objects from everything around them. We do that through segmentation, then augment the room or table surface and put the protected pixels back. This keeps the edited video aligned with the original instructions and actions. A towel-folding demonstration should still show the same fold, even if the room looks different.
 
-### Start with what must stay.
+### Segmentation.
 
-A mask identifies the pixels to keep: the towel, robot, and grippers. We place those original pixels over the rendered setting.
+For towel folding, we need to find the towel and every part of the robot, including the grippers. Those pixels form masks that tell us where the original video should show through the edit.
 
-Recorded joint angles tell us how to position the robot’s 3D model; camera calibration tells us where it appears in each image. Projecting that model gives us the robot mask. The task instructions guide segmentation of the objects and tabletop.
+The recording already gives us the robot’s joint angles at each frame, so we can position its 3D model in the recorded pose. Projecting that model through each camera’s calibration tells us which pixels belong to the robot. For the towel and tabletop, we use the task instructions to prompt SAM 3, a segmentation model, to find them in the image.
 
 *Protected robot; Protected towel. Hide masks / Show masks.*
 
 *Masks over the original towel-folding frame. The object mask includes a few extra regions along the edges.*
 
-### Give the cameras one room to look at.
+### Room augmentation.
 
-A wrist camera can look down at the table, then turn toward the ceiling as the arm moves. Those views need to belong to the same room.
+The wrist views are harder because the cameras move with the arms. A wrist can look down at the table in one frame and up toward the ceiling a moment later. Editing each frame independently leaves the image model to invent backgrounds that agree across those changing angles and across both wrists, while keeping the gripper, object, and table intact.
 
-We reduce the room to six faces: a floor, a ceiling, and four walls. An image for each face, plus a static image of the working area, gives us a scene to reuse. Each fixed camera reuses its rendered background. For each wrist frame, the recorded camera pose tells us how to render a view of that same scene.
-
-**One reusable room**
+I realized we could represent the room with just six images: a floor, a ceiling, and four walls. We generate those faces along with a static image of the working area, then reuse them for the whole recording. Since we know the wrist-camera poses from the robot state and calibration, we can render the room from wherever each wrist is looking. Each fixed camera reuses its own rendered background, so every view draws on the same generated scene.
 
 *Replay unfolding; Play / Pause; Unfolding timeline.*
 
@@ -62,9 +60,9 @@ In this example from the paper, all four cameras look into the generated room fr
 
 *The paper’s room edit keeps the wooden table, robot, and blue towel inside new surroundings. [View full-resolution frame ↗](https://tanaytan.github.io/augmentron/assets/images/method/paper-environment-four-views.png)*
 
-### Anchor the new texture to the table.
+### Surface augmentation.
 
-For a surface edit, we project a generated texture onto the calibrated table plane, so it stays attached to the surface as the wrists move. The protected robot and task objects go back over the rendered texture.
+For the table, we can use the same idea on one plane. We generate a surface texture once and project it onto the calibrated tabletop, so it stays in place as the wrist cameras move. The masks let us keep the towel and robot visible over the new texture.
 
 *High fixed; Low fixed; Left wrist; Right wrist.*
 

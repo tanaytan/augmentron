@@ -42,8 +42,8 @@ Pages serves the root of the `main` branch at [tanaytan.github.io/augmentron](ht
 
 The article starts with the collection problem and synthetic data augmentation. Three labelled takeaways introduce generalization, the measured 17× runtime advantage over RoboEngine, and scene reuse. It then shows four-camera prototype edits, explains which pixels are protected and how room and surface edits work, shows final-paper examples, explains scene reuse and measured processing time, and evaluates the trained policies. A static three-condition chart presents the matched comparison without requiring selections. Task-level results, larger recipes, and comparison limits sit in one disclosure.
 
-- The opening wall plays a pre-rendered video of room and table edits across different cup, towel, and vase recordings. Each tile retains all four synchronized source views. It grows through 1, 9, 25, and 49 moving examples, then reveals the original prototype presentation’s **Multi-view consistent / 1× GPU-hours / video-hour** banner, preserving its layout and styling. **Replay expansion**, **Play / Pause**, and the **Expansion timeline** let readers restart, pause, and scrub it.
-- **Hide masks / Show masks** toggles the protected robot and towel overlays on a verified original frame.
+- The opening wall plays a pre-rendered video of room and table edits across different cup, towel, and vase recordings. Each tile retains all four synchronized source views. It grows through 1, 9, 25, and 49 moving examples, then reveals the original prototype presentation’s **Multi-view consistent / 1× GPU-hours / video-hour** banner, preserving its layout and styling. **Replay expansion** sits at the bottom left beside **Play / Pause** and the compressed **Expansion timeline**, leaving the video unobstructed above.
+- **Hide masks / Show masks** toggles transparent PNG overlays for the protected robot and towel on a verified original frame. The PNG alpha channels come directly from the matching source masks, preserving their exact regions and avoiding luminance-mask interpretation differences in Safari.
 - **Replay unfolding**, **Play / Pause**, and the **Unfolding timeline** control a schematic six-face cubemap. It unfolds and folds back into a room. The diagram explains a reusable representation; it does not generate or reconstruct a room.
 - **The full pipeline**, **Timing scope and Cosmos-Transfer1**, and **Task results and larger recipes** reveal optional detail. The complete table supports horizontal scrolling on small screens, and its CSV is downloadable.
 - Two illustrative trial videos have native playback controls and **Replay both trials**. They start automatically when visible, pause when out of view, and use different manually reset starts.
@@ -78,3 +78,7 @@ This repository contains the research website. Augmentation and policy implement
 ## Asset versions
 
 After editing `styles.css` or `site.js`, run `python3 version_assets.py` before publishing. It gives both asset URLs a content-hash query parameter and synchronizes the HTML mirror, so browsers request the current files instead of reusing an older stylesheet or script.
+
+## Content editing
+
+For prose changes, consult the author’s intern presentation transcript first, then the final paper for method details and measured claims. Follow the talk’s explanatory flow, while keeping prototype examples and final results distinct. Keep private transcripts outside the published website.
