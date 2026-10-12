@@ -6,7 +6,7 @@ Tanay Tandon¹²*, Aseem Doriwala¹*, Jade Choghari¹, Catherine Weaver¹, Pragn
 
 *Equal contribution. ¹ Scale AI. ² University of Pennsylvania.
 
-Accepted to the 8th Robot Learning Workshop: *Is Physical AI Going Zero-Shot?* at NeurIPS 2026.
+8th Robot Learning Workshop: *Is Physical AI Going Zero-Shot?* at NeurIPS 2026.
 
 ## We can only collect robot data in so many rooms.
 
@@ -182,13 +182,9 @@ The real-only policy makes partial progress. The policy trained with augmented d
 
 *Replay both trials.*
 
-## There’s still a lot of work to do here.
+## Future research directions
 
 The biggest next step for augmentation quality is better segmentation. A wrist camera may see a gripper and a flower stem, with the petals out of view. To edit the flower consistently, we need to keep track of which pixels belong to it. I’d start by fine-tuning a segmentation model on these robot views. Better masks would improve the current edits and make changes to the task objects themselves more feasible.
-
-Three tasks and three visual conditions give us a useful first test. With one training seed per task and recipe, we still need to learn how much these results vary across training runs. The pipeline also depends on camera calibration, robot geometry, and usable masks. Its edits broaden the visual settings around a behavior we already recorded.
-
-I’d next like to see what happens when this data goes into pretraining or midtraining. These experiments only test fine-tuning. Can the same reuse of recorded behavior help at that larger scale?
 
 ## Read the paper.
 
