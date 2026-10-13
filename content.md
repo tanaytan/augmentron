@@ -22,12 +22,6 @@ Augmentron takes a demonstration you already have and gives it a different visua
 
 ## Augmenting real demonstrations.
 
-Visual augmentation changes what a recorded demonstration looks like while keeping its instructions and actions valid. We could change the room, the tabletop, or the appearance of the objects the robot handles.
-
-We focus on rooms and table surfaces because object edits need more reliable segmentation. When a gripper hides much of an object, or a wrist camera sees only part of it, finding its pixels consistently becomes harder. For now, we preserve the robot and task objects.
-
-The natural first instinct is to edit each frame with an image model, or ask a video model for an edited clip. Prior work has used both approaches. We generate room or surface assets once, then render them from the recorded camera poses throughout the demonstration. Here’s what those edits look like.
-
 *Replay expansion; Play / Pause; Expansion timeline.*
 
 **Multi-view consistent · 1×**
@@ -47,6 +41,14 @@ The recording already gives us the robot’s joint angles at each frame, so we c
 *Protected robot; Protected towel. Hide masks / Show masks.*
 
 *Masks over the original towel-folding frame. The object mask includes a few extra regions along the edges.*
+
+### Augmentation.
+
+With those masks in hand, we can change the demonstration’s visual setting while keeping its instructions and actions valid. We could change the room, the tabletop, or the appearance of the objects the robot handles.
+
+We focus on rooms and table surfaces because object edits need more reliable segmentation. When a gripper hides much of an object, or a wrist camera sees only part of it, finding its pixels consistently becomes harder. For now, we preserve the robot and task objects.
+
+The natural first instinct is to edit each frame with an image model, or ask a video model for an edited clip. Prior work has used both approaches. We generate room or surface assets once, then render them from the recorded camera poses throughout the demonstration. Here’s how we do that for rooms and table surfaces.
 
 ### Room augmentation.
 
