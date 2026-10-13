@@ -21,6 +21,7 @@ Open `http://127.0.0.1:4173/`.
 - `serve.py`: local preview server with byte-range support for video scrubbing.
 - `index.html`: article, figures, author list, paper link, and citation.
 - `styles.css`: typography, colors, layouts, responsive rules, and motion.
+- `delight.js`: independent ambient and pointer-response experiments.
 - `site.js`: figure playback and timelines, mask visibility, trial playback, complete-results table, citation copying, reading progress, and reduced motion.
 - `content.md`: readable copy of the current article, captions, and numerical tables.
 - `assets/results.csv`: all 72 task-level and pooled success percentages, with rollout counts.
@@ -77,8 +78,20 @@ This repository contains the research website. Augmentation and policy implement
 
 ## Asset versions
 
-After editing `styles.css` or `site.js`, run `python3 version_assets.py` before publishing. It gives both asset URLs a content-hash query parameter and synchronizes the HTML mirror, so browsers request the current files instead of reusing an older stylesheet or script.
+After editing `styles.css`, `site.js`, or `delight.js`, run `python3 version_assets.py` before publishing. It gives all three asset URLs a content-hash query parameter and synchronizes the HTML mirror, so browsers request the current files instead of reusing an older stylesheet or script.
 
 ## Content editing
 
 For prose changes, consult the author’s intern presentation transcript first, then the final paper for method details and measured claims. Follow the talk’s explanatory flow, while keeping prototype examples and final results distinct. Keep private transcripts outside the published website.
+
+## Optional interactions
+
+Three independent experiments live in `delight.js`:
+
+- `hero`: a point-field portrait sampled from the original towel-folding frame. The source masks keep the robot and towel points stationary. Background points drift gently, move around the pointer, and ripple on click or tap. This is a decorative sketch of preservation, not a generated augmentation or an evaluation result. The sketch uses the existing frame and transparent mask overlays; it adds no image assets.
+- `room`: pointer movement adds a small viewing-angle change to the existing unfolding cubemap. Its playback clock, scrubbing, and controls are unchanged.
+- `bars`: runtime and success bars reveal once when at least 20% of the figure enters view. Labels, numerical values, and final bar widths remain unchanged.
+
+Each has a separate flag in `FEATURES`. For comparison, `?delight=none` disables all three additions; `?delight=room,bars` removes the opening field while retaining the cubemap response and chart reveals. A comma-separated list enables only those named experiments. No public settings panel is added.
+
+All additions respect **Reduce motion**. The hero pauses when offscreen or the page is hidden, caps drawing at 30 fps and canvas resolution at 2×, and stays static with reduced motion. Pointer movement is restricted to fine pointers; taps produce brief background ripples without blocking normal touch scrolling. The existing recorded figure playback is managed separately in `site.js`.

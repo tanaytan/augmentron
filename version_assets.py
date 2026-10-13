@@ -6,7 +6,7 @@ import re
 
 root = Path(__file__).resolve().parent
 page = (root / "index.html").read_text()
-for asset in ("styles.css", "site.js"):
+for asset in ("styles.css", "site.js", "delight.js"):
     version = sha256((root / asset).read_bytes()).hexdigest()[:12]
     page, count = re.subn(
         rf'(["\']){re.escape(asset)}(?:\?v=[a-f0-9]+)?(["\'])',
