@@ -74,8 +74,6 @@ Robot-mesh projections and SAM 3 segmentation identify the protected foreground.
 
 ## Efficiency.
 
-**The expensive part happens once per recording.**
-
 An image model can edit each frame, or a video model can edit a clip at a time. Both keep generative inference tied to how much footage we want to augment. Across four cameras, that cost adds up quickly.
 
 Augmentron generates the room and surface assets once, then renders and composites them throughout the recording. Longer demonstrations add more of that cheaper work, while all four cameras share the same generated appearance.

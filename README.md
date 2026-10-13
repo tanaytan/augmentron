@@ -84,14 +84,8 @@ After editing `styles.css`, `site.js`, or `delight.js`, run `python3 version_ass
 
 For prose changes, consult the author’s intern presentation transcript first, then the final paper for method details and measured claims. Follow the talk’s explanatory flow, while keeping prototype examples and final results distinct. Keep private transcripts outside the published website.
 
-## Optional interactions
+## Figure interactions
 
-Three independent experiments live in `delight.js`:
+The cubemap gently responds to pointer movement without changing its playback clock. Runtime and success bars draw in once when the figure enters view; their labels, numerical values, and final widths remain unchanged. Both behaviors respect **Reduce motion** and are independently selected in `delight.js`.
 
-- `hero`: a point-field portrait sampled from the original towel-folding frame. The source masks keep the robot and towel points stationary. Background points drift gently, move around the pointer, and ripple on click or tap. This is a decorative sketch of preservation, not a generated augmentation or an evaluation result. The sketch uses the existing frame and transparent mask overlays; it adds no image assets.
-- `room`: pointer movement adds a small viewing-angle change to the existing unfolding cubemap. Its playback clock, scrubbing, and controls are unchanged.
-- `bars`: runtime and success bars reveal once when at least 20% of the figure enters view. Labels, numerical values, and final bar widths remain unchanged.
-
-Each has a separate flag in `FEATURES`. For comparison, `?delight=none` disables all three additions; `?delight=room,bars` removes the opening field while retaining the cubemap response and chart reveals. A comma-separated list enables only those named experiments. No public settings panel is added.
-
-All additions respect **Reduce motion**. The hero pauses when offscreen or the page is hidden, caps drawing at 30 fps and canvas resolution at 2×, and stays static with reduced motion. Pointer movement is restricted to fine pointers; taps produce brief background ripples without blocking normal touch scrolling. The existing recorded figure playback is managed separately in `site.js`.
+The ambient artwork has been removed from the live site. The four art studies and their supporting data are saved locally on branch `archive/augmentron-art-studies-2026-10-13` and in the companion archive ZIP. They are not part of the published page.
