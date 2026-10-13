@@ -22,6 +22,12 @@ Augmentron takes a demonstration you already have and gives it a different visua
 
 ## Augmenting real demonstrations.
 
+Visual augmentation changes what a recorded demonstration looks like while keeping its instructions and actions valid. We could change the room, the tabletop, or the appearance of the objects the robot handles.
+
+We focus on rooms and table surfaces because object edits need more reliable segmentation. When a gripper hides much of an object, or a wrist camera sees only part of it, finding its pixels consistently becomes harder. For now, we preserve the robot and task objects.
+
+The natural first instinct is to edit each frame with an image model, or ask a video model for an edited clip. Prior work has used both approaches. We generate room or surface assets once, then render them from the recorded camera poses throughout the demonstration. Here’s what those edits look like.
+
 *Replay expansion; Play / Pause; Expansion timeline.*
 
 **Multi-view consistent · 1×**
@@ -74,9 +80,7 @@ Robot-mesh projections and SAM 3 segmentation identify the protected foreground.
 
 ## Efficiency.
 
-An image model can edit each frame, or a video model can edit a clip at a time. Both keep generative inference tied to how much footage we want to augment. Across four cameras, that cost adds up quickly.
-
-Augmentron generates the room and surface assets once, then renders and composites them throughout the recording. Longer demonstrations add more of that cheaper work, while all four cameras share the same generated appearance.
+With the scene assets in hand, longer demonstrations mainly add rendering and compositing work. The same generated appearance serves all four cameras.
 
 | Once per recording | For each frame |
 | --- | --- |
