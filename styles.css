@@ -57,3 +57,6 @@ html[data-motion="reduced"]{scroll-behavior:auto}html[data-motion="reduced"] *,h
 .delight-chart .bar-track>span,.delight-chart .runtime-track>span{transform:scaleX(1);transform-origin:left center;transition:transform .8s var(--ease);transition-delay:var(--bar-delay,0ms)}
 .delight-chart:not(.is-revealed) .bar-track>span,.delight-chart:not(.is-revealed) .runtime-track>span{transform:scaleX(0)}
 html[data-motion="reduced"] .delight-chart .bar-track>span,html[data-motion="reduced"] .delight-chart .runtime-track>span{transform:scaleX(1);transition:none}
+
+.author-block .author-link{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:var(--green)}
+.author-block .author-link:hover{color:var(--green)}
