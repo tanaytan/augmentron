@@ -25,6 +25,7 @@ const expansionStatic = $('#expansion-static');
 const expansionEndPopup = $('#expansion-end-popup');
 const expansionState = {visible:false,userPaused:false,manual:false,pending:false,request:0,seek:null,frame:0};
 const room = $('#room-stage');
+const roomCamera = $('.room-camera');
 const roomState = {visible:false,userPaused:false,manual:false,time:0,playing:false,frame:0,lastStamp:0};
 const clockText = seconds => '0:'+String(Math.floor(seconds)).padStart(2,'0');
 function figureVisible(stage) {
@@ -127,6 +128,7 @@ function renderRoom() {
   const t=roomState.time;
   const unfold=t<1.2?0:t<3?smoothProgress((t-1.2)/1.8):t<6.1?1:t<7.6?1-smoothProgress((t-6.1)/1.5):0;
   room.style.setProperty('--unfold',String(unfold));
+  roomCamera.setAttribute('aria-hidden',String(unfold>=1/3));
   room.dataset.time=t.toFixed(2);
   $('#room-progress').value=String(t);
   $('#room-progress').setAttribute('aria-valuetext',t.toFixed(1)+' of 8 seconds');

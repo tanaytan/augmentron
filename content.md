@@ -60,7 +60,7 @@ I realized we could represent the room with just six images: a floor, a ceiling,
 
 *Front wall; Back wall; Left wall; Right wall; Ceiling; Floor. Recorded camera.*
 
-*This schematic shows the six-image room representation. The recorded wrist-camera pose determines which part of it appears in a frame.*
+*The camera faces the front wall in this schematic. In Augmentron, the recorded wrist-camera pose determines which part of the generated room appears in a frame.*
 
 In this example from the paper, all four cameras look into the generated room from their recorded poses.
 
