@@ -6,7 +6,7 @@ Tanay Tandon¹²*, Aseem Doriwala¹*, Jade Choghari¹, Catherine Weaver¹, Pragn
 
 *Equal contribution. ¹ Scale AI. ² University of Pennsylvania.
 
-[Live website](https://tanaytan.github.io/augmentron/)
+[Live website](https://augmentron.tanaytandon.com/) · [arXiv:2611.09145](https://arxiv.org/abs/2611.09145)
 
 ## Edit and preview
 
@@ -37,7 +37,7 @@ Open `http://127.0.0.1:4173/`.
 
 ## GitHub Pages
 
-Pages serves the root of the `main` branch at [tanaytan.github.io/augmentron](https://tanaytan.github.io/augmentron/). The `.nojekyll` file keeps the site buildless. Relative asset URLs work under the repository subpath.
+Pages serves the root of the `main` branch at [augmentron.tanaytandon.com](https://augmentron.tanaytandon.com/). The `.nojekyll` file keeps the site buildless. Relative asset URLs work under the repository subpath.
 
 ## Article and controls
 

@@ -194,7 +194,7 @@ The biggest next step for augmentation quality is better segmentation. A wrist c
 
 Accepted to the 8th Robot Learning Workshop: *Is Physical AI Going Zero-Shot?* at NeurIPS 2026.
 
-[Download paper](https://tanaytan.github.io/augmentron/assets/paper/augmentron.pdf)
+[arXiv:2611.09145](https://arxiv.org/abs/2611.09145) · [Download PDF](https://arxiv.org/pdf/2611.09145)
 
 ### Cite the work
 
@@ -208,9 +208,10 @@ Accepted to the 8th Robot Learning Workshop: *Is Physical AI Going Zero-Shot?* a
             Choghari, Jade and Weaver, Catherine and
             Mannam, Pragna},
   year = {2026},
-  note = {Accepted to the 8th Robot Learning Workshop
-          at NeurIPS 2026},
-  url = {https://tanaytan.github.io/augmentron/}
+  eprint = {2611.09145},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.LG},
+  url = {https://arxiv.org/abs/2611.09145}
 }
 ```
 
